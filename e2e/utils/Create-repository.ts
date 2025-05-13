@@ -206,7 +206,7 @@ export class RepositoryUtils {
             // اطمینان از آماده بودن صفحه
             await this.page.waitForLoadState('domcontentloaded');
             await this.page.waitForLoadState('networkidle');
-
+            
             // انتخاب رادیو باتن تصویر سفارشی
             await this.selectCustomImageRadio();
 
@@ -241,7 +241,7 @@ export class RepositoryUtils {
             await addButton.click();
 
             await this.page.waitForTimeout(2000);
-
+            
             // استفاده از سلکتور دقیق‌تر که فقط دکمه 'ادامه' را پیدا کند
             const continueButton = this.page.getByRole('button', { name: 'ادامه' });
             await expect(continueButton).toBeVisible({ timeout: 10000 });
