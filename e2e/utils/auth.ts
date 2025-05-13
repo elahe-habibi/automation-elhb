@@ -37,6 +37,29 @@ export class AuthUtils {
         await this.page.waitForURL('https://clasor-frontend.sandpod.ir/admin/dashboard');
     }
 
+    async navigateToMyRepositories() {
+        // Wait for navigation to the dashboard URL to ensure page is loaded
+        await this.page.waitForURL('https://clasor-frontend.sandpod.ir/admin/dashboard');
+        
+        // Wait for the page to fully load
+        await this.page.waitForLoadState('networkidle');
+        
+        // Click on the "Repository Management" link (مدیریت مخزن‌ها)
+        const repoManagementButton = await this.page.locator('button.flex.items-center.w-full.py-4.flex-row-reverse:has(.title_t4:has-text("مدیریت مخزن‌ها"))');
+        await expect(repoManagementButton).toBeVisible();
+        await repoManagementButton.click();
+        
+        // Wait for the page to load
+        await this.page.waitForLoadState('networkidle');
+        
+        // Click on the "My Repositories" button using specific class selectors
+        const myRepositoriesButton = await this.page.locator('button.align-middle.select-none.font-sans.font-bold.text-center.uppercase.text-xs.py-3.rounded-lg:has(.title_t3:has-text("مخزن‌های من"))');
+        await expect(myRepositoriesButton).toBeVisible();
+        await myRepositoriesButton.click();
+        // Wait for the page to load
+        await this.page.waitForLoadState('networkidle');
+    }
+
     async loginWithAnotherAccount(username: string, password: string) {
         // Navigate to the website
         await this.page.goto('https://clasor-frontend.sandpod.ir/');
@@ -84,4 +107,6 @@ export class AuthUtils {
         // Wait for navigation back to the home page
         await this.page.waitForURL('https://clasor-frontend.sandpod.ir/');
     }
+
+   
 } 

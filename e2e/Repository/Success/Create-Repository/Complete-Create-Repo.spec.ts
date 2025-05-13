@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../../utils/auth';
 import { RepositoryUtils } from '../../../utils/Create-repository';
+import path from 'path';
 
 test.describe('Repository Create and Share', () => {
     let authUtils: AuthUtils;
@@ -13,25 +14,28 @@ test.describe('Repository Create and Share', () => {
         
         // لاگین قبل از هر تست
         await authUtils.login('eli69', 'HQ[>684ngg');
+        await authUtils.navigateToMyRepositories();
     });
 
-    test('should create a repository, add tags and share with user', async ({ page }) => {
+    test('should create a repository with custom image upload', async ({ page }) => {
         // ایجاد مخزن با نام یکتا
         const repoName = await repoUtils.createRepositoryWithUniqueName('این یک مخزن تستی است', true);
         
         // اشتراک‌گذاری مخزن با کاربر دیگر
         await repoUtils.shareRepository('emad.mh');
         
-        // ایجاد تگ‌ها
+    
+        // ایجاد تگ
         await repoUtils.createTag('تست');
-        await repoUtils.createTag('مخزن');
+       
+      
+        // آپلود تصویر سفارشی
+        const imagePath = path.join(__dirname, '../../../../picture.jpg');
+        await repoUtils.uploadCustomRepositoryImage(imagePath);
         
-
-
-
-
-
-        // اضافه کردن تاخیر برای اطمینان از اشتراک‌گذاری
+      
+        // انتظار برای تکمیل فرآیند
         await page.waitForTimeout(2000);
     });
+
 }); 
