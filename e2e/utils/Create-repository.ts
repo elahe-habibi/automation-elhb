@@ -1,5 +1,6 @@
 import { Page, expect } from '@playwright/test';
 import path from 'path';
+import { URLs, getFullUrl } from '../constants';
 
 export class RepositoryUtils {
     private page: Page;
@@ -15,30 +16,69 @@ export class RepositoryUtils {
      * @param shouldComplete اگر true باشد، مخزن ایجاد می‌شود، در غیر این صورت فقط فرم پر می‌شود و انصراف داده می‌شود
      */
     async createRepository(name: string, description: string, shouldComplete: boolean = false) {
-        // کلیک روی دکمه ایجاد مخزن جدید
-        const createRepoButton = await this.page.locator('button:has-text("ایجاد مخزن جدید")');
-        await createRepoButton.click();
-        
-        // انتظار برای نمایش فرم
-        await this.page.waitForSelector('#repo-name');
-        
-        // پر کردن فرم
-        await this.page.locator('#repo-name').fill(name);
-        await this.page.locator('textarea[name="description"]').fill(description);
-        
-        // کلیک روی دکمه ادامه
-        const continueButton = await this.page.locator('button:has-text("ادامه")');
-        await continueButton.waitFor({ state: 'visible' });
-        await continueButton.click();
-        
-        if (!shouldComplete) {
-            // کلیک روی دکمه انصراف
-            const cancelButton = await this.page.locator('button:has-text("انصراف")');
-            await cancelButton.waitFor({ state: 'visible' });
-            await cancelButton.click();
+        try {
+            // کلیک روی دکمه ایجاد مخزن جدید
+            const createRepoButton = await this.page.locator('button:has-text("ایجاد مخزن جدید")');
+            await createRepoButton.waitFor({ state: 'visible', timeout: 12000 });
+            await createRepoButton.click();
             
-            // اطمینان از بسته شدن دیالوگ
-            await expect(this.page.locator('div[placeholder="stepper-dialog"]')).not.toBeVisible();
+            // انتظار برای نمایش فرم و اطمینان از بارگذاری کامل
+            await this.page.waitForSelector('#repo-name', { state: 'visible', timeout: 12000 });
+            await this.page.waitForLoadState('networkidle');
+            
+            // پر کردن فرم با مدیریت خطا
+            try {
+                const nameInput = this.page.locator('#repo-name');
+                await nameInput.waitFor({ state: 'visible', timeout: 5000 });
+                await nameInput.fill(name);
+                
+                const descInput = this.page.locator('textarea[name="description"]');
+                await descInput.waitFor({ state: 'visible', timeout: 5000 });
+                await descInput.fill(description);
+
+                // انتظار برای اطمینان از پر شدن فرم
+                await this.page.waitForLoadState('networkidle');
+                
+                // اطمینان از اینکه فرم همچنان باز است
+                const stepperDialog = this.page.locator('div[placeholder="stepper-dialog"]');
+                await expect(stepperDialog).toBeVisible({ timeout: 5000 });
+                
+                // کلیک روی دکمه ادامه با مدیریت خطا
+                const continueButton = this.page.locator('.repo-create-dialog__create-button');
+                await continueButton.waitFor({ state: 'visible', timeout: 12000 });
+                
+                // اطمینان از اینکه دکمه قابل کلیک است
+                await expect(continueButton).toBeEnabled();
+                
+                // اضافه کردن تاخیر کوتاه قبل از کلیک
+                await this.page.waitForTimeout(2000);
+                
+                // کلیک روی دکمه ادامه
+                await continueButton.click();
+                
+                // انتظار برای بارگذاریs کامل صفحه بعد از کلیک
+                await this.page.waitForLoadState('networkidle');
+                
+                // اطمینان از اینکه دیالوگ همچنان باز است
+                await expect(stepperDialog).toBeVisible({ timeout: 5000 });
+            } catch (error) {
+                console.error('Error in form submission:', error);
+                throw error;
+            }
+            
+            if (!shouldComplete) {
+                // کلیک روی دکمه انصراف
+                const cancelButton = await this.page.locator('button:has-text("انصراف")');
+                await cancelButton.waitFor({ state: 'visible', timeout: 5000 });
+                await cancelButton.click();
+                
+                // اطمینان از بسته شدن دیالوگ
+                const stepperDialog = this.page.locator('div[placeholder="stepper-dialog"]');
+                await expect(stepperDialog).not.toBeVisible();
+            }
+        } catch (error) {
+            console.error('Error in createRepository:', error);
+            throw error;
         }
     }
 
@@ -114,7 +154,7 @@ export class RepositoryUtils {
         await this.page.waitForTimeout(1000);
     }
 
-    async deleteRepos(repoIds: string[], token: string, baseUrl: string) {
+    async deleteRepos(repoIds: string[], token: string) {
         console.log(`شروع حذف ${repoIds.length} مخزن...`);
         
         // بررسی آرایه خالی
@@ -130,7 +170,7 @@ export class RepositoryUtils {
             
             try {
                 // حذف مخزن با استفاده از Playwright fetch API
-                const response = await this.page.request.delete(`${baseUrl}/repositories/${repoId}?forceDelete=false`, {
+                const response = await this.page.request.delete(getFullUrl(URLs.REPOSITORY_DETAIL(repoId)), {
                     headers: {
                         'Accept': '*/*',
                         'Authorization': `Bearer ${token}`
@@ -198,55 +238,29 @@ export class RepositoryUtils {
     }
 
     /**
-     * آپلود تصویر سفارشی برای مخزن با استفاده از رادیو باتن جدید
-     * @param imagePath مسیر فایل تصویر
+     * آپلود تصویر سفارشی برای مخزن
+     * @param imagePath مسیر تصویر
      */
     async uploadCustomRepositoryImage(imagePath: string) {
         try {
-            // اطمینان از آماده بودن صفحه
-            await this.page.waitForLoadState('domcontentloaded');
-            await this.page.waitForLoadState('networkidle');
-            
             // انتخاب رادیو باتن تصویر سفارشی
             await this.selectCustomImageRadio();
-
-            // کمی صبر برای اطمینان از اعمال تغییرات
-            await this.page.waitForTimeout(22000);
-
-            // یافتن input نوع فایل مستقیما (بدون کلیک روی دکمه)
-            const fileInput = this.page.locator('input[type="file"]');
             
-            // Directly set the file input without clicking the upload button
-            // این روش از باز شدن دیالوگ انتخاب فایل جلوگیری می‌کند
+            // آپلود تصویر - استفاده از سلکتور دقیق‌تر و بدون انتظار برای نمایش
+            const fileInput = this.page.locator('#file-upload');
             await fileInput.setInputFiles(imagePath);
             
-            // کمی صبر برای اطمینان از آپلود فایل
-            await this.page.waitForTimeout(8000);
-            
-            const confirmButton = this.page.locator('.dialog-content__action-part .dialog-content__submit');         // بررسی اینکه دکمه در صفحه قابل مشاهده است
-            await expect(confirmButton).toBeVisible({ timeout: 30000 });
-  
-            // کلیک روی دکمه تایید
-            await confirmButton.click();
-
-            // Wait for UI update after confirmation
+            // انتظار برای اطمینان از تکمیل آپلود
             await this.page.waitForTimeout(3000);
             
-            const firstItem = this.page.locator('tbody tr').first();
-            await expect(firstItem).toBeVisible({ timeout: 10000 });
-            await firstItem.click();
-
-            const addButton = this.page.getByRole('button', { name: 'افزودن' });
-            await expect(addButton).toBeVisible({ timeout: 10000 });
-            await addButton.click();
-
-            await this.page.waitForTimeout(2000);
-            
-            // استفاده از سلکتور دقیق‌تر که فقط دکمه 'ادامه' را پیدا کند
-            const continueButton = this.page.getByRole('button', { name: 'ادامه' });
-            await expect(continueButton).toBeVisible({ timeout: 10000 });
+            // کلیک روی دکمه ادامه با استفاده از سلکتور دقیق‌تر
+            const continueButton = this.page.locator('.repo-attach-custom-image__dialog-next-button');
+            await continueButton.waitFor({ state: 'visible', timeout: 5000 });
             await continueButton.click();
-
+            
+            // انتظار برای اطمینان از تکمیل عملیات
+            await this.page.waitForLoadState('networkidle');
+            
         } catch (error) {
             console.error('خطا در آپلود تصویر سفارشی:', error);
             throw error;

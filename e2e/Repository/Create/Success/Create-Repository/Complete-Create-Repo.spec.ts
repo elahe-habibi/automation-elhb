@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { AuthUtils } from '../../../utils/auth';
-import { RepositoryUtils } from '../../../utils/Create-repository';
+import { AuthUtils } from '../../../../utils/auth';
+import { RepositoryUtils } from '../../../../utils/Create-Repository';
 import path from 'path';
 
 test.describe('Repository Create and Share', () => {
@@ -24,18 +24,14 @@ test.describe('Repository Create and Share', () => {
         // اشتراک‌گذاری مخزن با کاربر دیگر
         await repoUtils.shareRepository('emad.mh');
         
-    
         // ایجاد تگ
         await repoUtils.createTag('تست');
-       
-      
+        
         // آپلود تصویر سفارشی
         const imagePath = path.join(__dirname, '../../../../picture.jpg');
         await repoUtils.uploadCustomRepositoryImage(imagePath);
         
-      
         // انتظار برای تکمیل فرآیند
         await page.waitForTimeout(2000);
     });
-
 }); 

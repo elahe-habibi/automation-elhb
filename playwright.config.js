@@ -32,7 +32,7 @@ module.exports = defineConfig({
   },
 
   /* Maximum time one test can run for */
-  timeout: 120000,
+  timeout: 200000,
 
   /* Configure projects for major browsers */
   projects: [

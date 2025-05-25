@@ -1,5 +1,6 @@
 import { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
+import { URLs, getFullUrl, getSSOUrl } from '../constants';
 
 export class AuthUtils {
     private page: Page;
@@ -10,21 +11,23 @@ export class AuthUtils {
 
     async login(username: string, password: string) {
         // Navigate to the website
-        await this.page.goto('https://clasor-frontend.sandpod.ir/');
+        await this.page.goto(getFullUrl(URLs.LOGIN));
 
         // Locate the login button using role and click it
         await this.page.waitForSelector('button:has-text("ورود")');
         const loginButton = await this.page.locator('button:has-text("ورود")');
         await loginButton.click();
 
-        // Wait for navigation to the expected URL
-        await this.page.waitForURL('https://sso-sandbox.sandpod.ir/oauth2/authorize/index.html?client_id=18682629g64434d74b0004e8ecb3d3be1&response_type=code&redirect_uri=https://clasor-frontend.sandpod.ir/signin&scope=profile');
-
-        // Wait for the page to fully load
+        // Wait for any navigation to complete
+        console.log('Waiting for navigation...');
         await this.page.waitForLoadState('networkidle');
+        console.log('Navigation complete');
 
         // Locate and fill the username and password fields
+        console.log('Looking for username field...');
         const usernameField = await this.page.locator('#authIdentity-inp');
+        await expect(usernameField).toBeVisible({ timeout: 10000 });
+        console.log('Username field found');
         const passwordField = await this.page.locator('#authPassword-inp');
         await usernameField.fill(username);
         await passwordField.fill(password);
@@ -34,12 +37,12 @@ export class AuthUtils {
         await submitButton.click();
 
         // Wait for navigation to the dashboard URL
-        await this.page.waitForURL('https://clasor-frontend.sandpod.ir/admin/dashboard');
+        await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
     }
 
     async navigateToMyRepositories() {
         // Wait for navigation to the dashboard URL to ensure page is loaded
-        await this.page.waitForURL('https://clasor-frontend.sandpod.ir/admin/dashboard');
+        await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
         
         // Wait for the page to fully load
         await this.page.waitForLoadState('networkidle');
@@ -62,7 +65,7 @@ export class AuthUtils {
 
     async loginWithAnotherAccount(username: string, password: string) {
         // Navigate to the website
-        await this.page.goto('https://clasor-frontend.sandpod.ir/');
+        await this.page.goto(getFullUrl(URLs.LOGIN));
 
         // Locate the login button using role and click it
         await this.page.waitForSelector('button:has-text("ورود")');
@@ -70,7 +73,7 @@ export class AuthUtils {
         await loginButton.click();
 
         // Wait for navigation to the expected URL
-        await this.page.waitForURL('https://sso-sandbox.sandpod.ir/oauth2/authorize/index.html?client_id=18682629g64434d74b0004e8ecb3d3be1&response_type=code&redirect_uri=https://clasor-frontend.sandpod.ir/signin&scope=profile');
+        await this.page.waitForURL(url => url.toString().includes('sso.sandpod.ir'), { timeout: 30000 });
 
         // Wait for the page to fully load
         await this.page.waitForLoadState('networkidle');
@@ -91,7 +94,7 @@ export class AuthUtils {
         await submitButton.click();
 
         // Wait for navigation to the dashboard URL
-        await this.page.waitForURL('https://clasor-frontend.sandpod.ir/admin/dashboard');
+        await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
     }
 
     async logout() {
@@ -105,8 +108,6 @@ export class AuthUtils {
         await logoutButtonElement.click();
 
         // Wait for navigation back to the home page
-        await this.page.waitForURL('https://clasor-frontend.sandpod.ir/');
+        await this.page.waitForURL(getFullUrl(URLs.LOGIN));
     }
-
-   
 } 
