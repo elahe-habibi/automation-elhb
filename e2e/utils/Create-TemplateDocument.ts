@@ -35,6 +35,7 @@ export class DocumentTemplateManager {
   async clickCreateButton() {
     const createButton = this.page.getByRole('button', { name: 'ایجاد' });
     await createButton.click();
+    await this.page.waitForTimeout(2000);
 
     const templateButton = this.page.locator('.create-template');
 
@@ -43,16 +44,17 @@ export class DocumentTemplateManager {
 
     // کلیک روی دکمه "نمونه سند"
     await templateButton.click();
+    await this.page.waitForTimeout(2000);
 
     // انتخاب گزینه "clasor" از لیست
     const dropdownButton = this.page.locator('.document-type__select');
     await dropdownButton.click(); // باز کردن لیست
-
-    await this.page.waitForTimeout(500); // یک وقفه کوتاه برای بارگذاری لیست
+    await this.page.waitForTimeout(2000);
 
     const clasorOption = this.page.locator('.select_option__text', { hasText: 'clasor' });
     await expect(clasorOption).toBeVisible();
     await clasorOption.click();
+    await this.page.waitForTimeout(2000);
 
     const continueButton = this.page.locator('.dialog-footer__submit-button');
 
@@ -61,6 +63,7 @@ export class DocumentTemplateManager {
 
     // کلیک روی دکمه "ادامه"
     await continueButton.click();
+    await this.page.waitForTimeout(2000);
 
     // مقدار یونیک برای نام سند
     const uniqueDocumentName = `سند-تست-${Date.now()}`;
@@ -69,16 +72,19 @@ export class DocumentTemplateManager {
     const nameField = this.page.locator('.document-info-form__name');
     await expect(nameField).toBeVisible();
     await nameField.fill(uniqueDocumentName);
+    await this.page.waitForTimeout(1000);
 
     // پر کردن فیلد "اولویت سند"
     const orderField = this.page.locator('.document-info-form__order');
     await expect(orderField).toBeVisible();
     await orderField.fill('1');
+    await this.page.waitForTimeout(1000);
 
     // پر کردن فیلد "توضیحات سند"
     const descriptionField = this.page.locator('.document-info-form__description');
     await expect(descriptionField).toBeVisible();
     await descriptionField.fill('این یک سند تستی برای بررسی عملکرد Playwright است.');
+    await this.page.waitForTimeout(1000);
 
     const finalContinueButton = this.page.locator('.dialog-footer__submit-button');
 
@@ -87,6 +93,7 @@ export class DocumentTemplateManager {
 
     // کلیک روی دکمه "ادامه"
     await finalContinueButton.click();
+    await this.page.waitForTimeout(2000);
 
     const versionField = this.page.locator('.document-version-form__name');
 
@@ -98,6 +105,7 @@ export class DocumentTemplateManager {
 
     // پر کردن فیلد "نام نسخه"
     await versionField.fill(uniqueVersionNumber);
+    await this.page.waitForTimeout(1000);
 
     const finalCreateButton = this.page.locator('.dialog-footer__submit-button');
 
@@ -106,6 +114,9 @@ export class DocumentTemplateManager {
 
     // کلیک روی دکمه "ایجاد"
     await finalCreateButton.click();
+    
+    // انتظار برای اطمینان از تکمیل عملیات ایجاد سند
+    await this.page.waitForTimeout(5000);
   }
 
   /**

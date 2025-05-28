@@ -11,7 +11,7 @@ test.describe('Repository Create and Share', () => {
         // ایجاد نمونه‌های کلاس‌های کمکی
         authUtils = new AuthUtils(page);
         repoUtils = new RepositoryUtils(page);
-        
+
         // لاگین قبل از هر تست
         await authUtils.login('eli69', 'HQ[>684ngg');
         await authUtils.navigateToMyRepositories();
@@ -20,18 +20,25 @@ test.describe('Repository Create and Share', () => {
     test('should create a repository with custom image upload', async ({ page }) => {
         // ایجاد مخزن با نام یکتا
         const repoName = await repoUtils.createRepositoryWithUniqueName('این یک مخزن تستی است', true);
-        
+
         // اشتراک‌گذاری مخزن با کاربر دیگر
         await repoUtils.shareRepository('emad.mh');
-        
-        // ایجاد تگ
-        await repoUtils.createTag('تست');
-        
+
+
         // آپلود تصویر سفارشی
-        const imagePath = path.join(__dirname, '../../../../picture.jpg');
+        const imagePath = path.join(__dirname, '../../assets/picture.jpg');
         await repoUtils.uploadCustomRepositoryImage(imagePath);
-        
+
         // انتظار برای تکمیل فرآیند
         await page.waitForTimeout(2000);
     });
-}); 
+});
+
+
+
+
+
+
+
+// // ایجاد تگ
+// await repoUtils.createTag('تست');

@@ -1,53 +1,54 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
-import { EditRepository } from '../../utils/Edit-Repository';
+import { CategoryManager } from '../../utils/Create-Category';
+import { EditCategory } from '../../utils/Edit-Categoty';
 import path from 'path';
 
-test.describe('Repository Edit Tests', () => {
+test.describe('Repository Create and Share', () => {
     let authUtils: AuthUtils;
     let repoUtils: RepositoryUtils;
-    let editRepo: EditRepository;
+    let CategoryUtils: EditCategory;
 
     test.beforeEach(async ({ page }) => {
         // ایجاد نمونه‌های کلاس‌های کمکی
         authUtils = new AuthUtils(page);
         repoUtils = new RepositoryUtils(page);
-        editRepo = new EditRepository(page);
+        CategoryUtils = new EditCategory(page);
         
         // لاگین قبل از هر تست
         await authUtils.login('eli69', 'HQ[>684ngg');
         await authUtils.navigateToMyRepositories();
     });
 
-    test('should edit category', async ({ page }) => {
-        // ایجاد مخزن با نام یکتا
-        const repoName = await repoUtils.createRepositoryWithUniqueName('این یک مخزن تستی است', true);
-
+    test('Create Category', async ({ page }) => {
+      // ایجاد مخزن با نام یکتا
+      const repoName = await repoUtils.createRepositoryWithUniqueName('این یک مخزن تستی است', true);
+      
+    /**
+     * تست‌های مربوط به ایجاد دسته‌بندی در سیستم
+     */
+        // ایجاد یک نمونه از کلاس مدیریت دسته‌بندی
+        const categoryManager = new CategoryManager(page);
+        
         // رفتن به صفحه داشبورد
-        await editRepo.goToDashboard();
+        await categoryManager.goToDashboard();
         
         // انتخاب اولین مخزن
-        await editRepo.selectFirstRepository();
+        await categoryManager.selectFirstRepository();
         
-       // کلیک روی دکمه منو
-        await editRepo.clickDropdownButton();
-
-        // ویرایش نام مخزن
-        const newName = `مخزن-ویرایش-شده-${Date.now()}`;
-        await editRepo.editRepositoryName(newName);
-
-        // ویرایش توضیحات مخزن
-        await editRepo.editRepositoryDescription('این مخزن ویرایش شده است');
+        
+        // کلیک روی دکمه ایجاد
+        await categoryManager.clickCreateButton();
 
 
-        await editRepo.editRepositoryPic();
 
-        // // ذخیره تغییرات
-        await editRepo.saveChanges();
+        await CategoryUtils.editCategory();
+        
+        const toastMessage = page.locator('.Toastify__toast-body');
+        await expect(toastMessage).toBeVisible({timeout: 10000});
+        await expect(toastMessage).toContainText('موفقیت', {timeout: 5000});
 
-        // // انتظار برای نمایش پیام موفقیت‌آمیز
-        await editRepo.waitForSuccessToast();
+      
     });
-
-});
+}); 

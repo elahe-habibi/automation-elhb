@@ -35,11 +35,14 @@ export class DocumentManager {
   async clickCreateButton() {
     const createButton = this.page.getByRole('button', { name: 'ایجاد' });
     await createButton.click();
+    await this.page.waitForTimeout(2000);
+
     const newDocumentButton = this.page.locator('.create-document');
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(newDocumentButton).toBeVisible();
     // کلیک روی دکمه "سند جدید"
     await newDocumentButton.click();
+    await this.page.waitForTimeout(2000);
 
     const dropdownButton = this.page.locator('.document-type__select');
 
@@ -48,15 +51,18 @@ export class DocumentManager {
 
     // کلیک روی دراپ‌داون
     await dropdownButton.click();
+    await this.page.waitForTimeout(2000);
 
     // اسکرول در لیست انتخاب
     const dropdownList = this.page.locator('.shadow-menu');
     await dropdownList.evaluate(el => el.scrollIntoView());
+    await this.page.waitForTimeout(2000);
 
     // انتخاب گزینه "clasor"
     const clasorOption = this.page.locator('.select_option__text', { hasText: 'clasor' });
     await expect(clasorOption).toBeVisible();
     await clasorOption.click();
+    await this.page.waitForTimeout(2000);
 
     const continueButton = this.page.locator('.dialog-footer__submit-button');
 
@@ -65,29 +71,35 @@ export class DocumentManager {
 
     // کلیک روی دکمه "ادامه"
     await continueButton.click();
+    await this.page.waitForTimeout(2000);
 
     // مقدار یونیک برای نام سند
     const uniqueDocumentName = `سند-تست-${Date.now()}`;
 
     // پر کردن فیلد "نام سند"
     await this.page.fill('.document-info-form__name', uniqueDocumentName);
+    await this.page.waitForTimeout(1000);
 
     // پر کردن فیلد "اولویت سند"
     await this.page.fill('.document-info-form__order', '1');
+    await this.page.waitForTimeout(1000);
 
     // پر کردن فیلد "توضیحات سند"
     await this.page.fill('.document-info-form__description', 'این یک سند تستی برای بررسی عملکرد Playwright است.');
+    await this.page.waitForTimeout(1000);
 
     // ارسال فرم (اگر دکمه تأیید وجود دارد، آن را کلیک کن)
     const confirmButton = this.page.locator('.dialog-footer__submit-button');
     await expect(confirmButton).toBeVisible();
     await confirmButton.click();
+    await this.page.waitForTimeout(2000);
 
     const finalSaveButton = this.page.locator('.dialog-footer__submit-button');
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(finalSaveButton).toBeVisible();
     // کلیک روی دکمه "ادامه"
     await finalSaveButton.click();
+    await this.page.waitForTimeout(2000);
 
     const lastContinueButton = this.page.locator('.dialog-footer__submit-button');
 
@@ -96,6 +108,7 @@ export class DocumentManager {
 
     // کلیک روی دکمه "ادامه"
     await lastContinueButton.click();
+    await this.page.waitForTimeout(2000);
 
     const versionField = this.page.locator('.document-version-form__name');
 
@@ -107,6 +120,7 @@ export class DocumentManager {
 
     // پر کردن فیلد "نام نسخه"
     await versionField.fill(uniqueVersionName);
+    await this.page.waitForTimeout(1000);
 
     const createButtonfinal = this.page.locator('.dialog-footer__submit-button');
 
@@ -115,6 +129,9 @@ export class DocumentManager {
 
     // کلیک روی دکمه "ایجاد"
     await createButtonfinal.click();
+    
+    // انتظار برای اطمینان از تکمیل عملیات ایجاد سند
+    await this.page.waitForTimeout(5000);
   }
 
   /**
