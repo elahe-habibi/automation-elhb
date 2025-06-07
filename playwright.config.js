@@ -46,7 +46,7 @@ module.exports = defineConfig({
     //   use: { ...devices['Desktop Firefox'] },
     // },
     // {
-    //   name: 'webkit', 
+    //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
     // },
   ],
@@ -58,4 +58,3 @@ module.exports = defineConfig({
   //   reuseExistingServer: !process.env.CI,
   // },
 });
-

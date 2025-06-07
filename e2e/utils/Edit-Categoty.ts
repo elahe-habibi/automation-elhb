@@ -35,30 +35,33 @@ export class EditCategory {
     await this.page.waitForTimeout(2000);
 
     // انتخاب فیلد "نام دسته‌بندی" و پر کردن مقدار آن
-    const categoryNameInput = this.page.locator('.category-edit-dialog__form-name');
+    const categoryNameInput = this.page.locator(
+      '.category-edit-dialog__form-name'
+    );
     await expect(categoryNameInput).toBeVisible();
     await categoryNameInput.fill('نام جدید دسته‌بندی');
     await this.page.waitForTimeout(2000);
 
     // انتخاب فیلد "اولویت دسته‌بندی" و پر کردن مقدار آن
-    const categoryOrderInput = this.page.locator('.category-edit-dialog__form-order');
+    const categoryOrderInput = this.page.locator(
+      '.category-edit-dialog__form-order'
+    );
     await expect(categoryOrderInput).toBeVisible();
     await categoryOrderInput.fill('11');
     await this.page.waitForTimeout(2000);
 
     // انتخاب فیلد "توضیحات دسته‌بندی" و پر کردن مقدار آن
-    const categoryDescriptionInput = this.page.locator('.category-edit-dialog__form-description');
+    const categoryDescriptionInput = this.page.locator(
+      '.category-edit-dialog__form-description'
+    );
     await expect(categoryDescriptionInput).toBeVisible();
     await categoryDescriptionInput.fill('این دسته‌بندی برای محصولات جدید است.');
     await this.page.waitForTimeout(2000);
 
-
-    const editButton =this.page.locator('.dialog-footer__submit-button');
+    const editButton = this.page.locator('.dialog-footer__submit-button');
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(editButton).toBeVisible();
     // کلیک روی دکمه "ویرایش"
     await editButton.click();
-    
-
   }
 }

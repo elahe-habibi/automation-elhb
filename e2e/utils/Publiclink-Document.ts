@@ -5,72 +5,77 @@ import { expect, Page } from '@playwright/test';
  * این کلاس شامل توابع مورد نیاز برای ویرایش مخزن است
  */
 export class PubliclinknDocument {
-    private page: Page;
+  private page: Page;
 
-    constructor(page: Page) {
-        this.page = page;
-    }
+  constructor(page: Page) {
+    this.page = page;
+  }
 
-    /**
-     * ویرایش سند
-     */
-    async PubliclinkDoc() {
-        // Wait for the page to be fully loaded
-        await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(2000);
+  /**
+   * ویرایش سند
+   */
+  async PubliclinkDoc() {
+    // Wait for the page to be fully loaded
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(2000);
 
-        const menuButton = this.page.locator('.document-menu button').nth(0);
-        await expect(menuButton).toBeVisible();
-        await menuButton.click();
+    const menuButton = this.page.locator('.document-menu button').nth(0);
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
 
-        const publishLinkButton = this.page.locator('.document-create-publish-link').nth(0);
-        await expect(publishLinkButton).toBeVisible();
-        await publishLinkButton.click();
+    const publishLinkButton = this.page
+      .locator('.document-create-publish-link')
+      .nth(0);
+    await expect(publishLinkButton).toBeVisible();
+    await publishLinkButton.click();
 
+    const checkbox = this.page.locator('.expire-time__checkbox');
+    // بررسی اینکه چک‌باکس قابل مشاهده است
+    await expect(checkbox).toBeVisible();
+    // انتخاب و فعال کردن چک‌باکس
+    await checkbox.check();
 
+    await this.page.waitForTimeout(5000);
 
+    // ابتدا روی فیلد تاریخ کلیک کن تا پنجره انتخاب تاریخ باز شود
+    const dateField = this.page.locator('.datePicker__input');
+    await expect(dateField).toBeVisible();
+    await dateField.click();
 
-        const checkbox = this.page.locator('.expire-time__checkbox');
-        // بررسی اینکه چک‌باکس قابل مشاهده است
-        await expect(checkbox).toBeVisible();
-        // انتخاب و فعال کردن چک‌باکس
-        await checkbox.check();
+    // دریافت تاریخ فردا
+    const today = new Date();
+    const nextDay = new Date(today);
+    nextDay.setDate(today.getDate() + 1);
 
+    // فقط روز فردا رو به عدد تبدیل می‌کنیم
+    const nextDayValue = nextDay.toDateString(); // مثال: "Fri May 30 2025"
+    // انتخاب دکمه روز موردنظر
+    const nextDayButton = this.page.locator(
+      `button[data-value*="${nextDayValue}"]`
+    );
+    await expect(nextDayButton).toBeVisible();
+    await nextDayButton.click();
 
-        // ابتدا روی فیلد تاریخ کلیک کن تا پنجره انتخاب تاریخ باز شود
-        const dateField = this.page.locator('.datePicker__input');
-        await expect(dateField).toBeVisible();
-        await dateField.click();
+    await this.page.waitForTimeout(5000);
 
-        // دریافت تاریخ فعلی
-        const today = new Date();
-        const nextDay = new Date(today);
-        nextDay.setDate(today.getDate() + 1); // تاریخ روز بعد
+    // کلیک روی دکمه تایید
+    const confirmButton = this.page.locator('.dialog-footer__submit-button');
+    await expect(confirmButton).toBeVisible();
+    await confirmButton.click();
 
-        // تبدیل عدد روز ماه به متن (مثلاً "۹" برای انتخاب)
-        const nextDayFormatted = nextDay.getDate().toString();
-        // انتخاب دکمه روز موردنظر بر اساس `data-value`
-        const nextDayButton = this.page.locator(`button[data-value*="${nextDayFormatted}"]`);
-        await expect(nextDayButton).toBeVisible();
-        await nextDayButton.click();
+    await this.page.waitForTimeout(5000);
 
+    const publishedDocumentButton = this.page
+      .locator('.text__label__button')
+      .nth(0);
+    await expect(publishedDocumentButton).toBeVisible();
+    await publishedDocumentButton.click();
 
+    await this.page.waitForTimeout(10000);
 
-        const confirmButton = this.page.locator('.dialog-footer__submit-button');
-        // بررسی اینکه دکمه قابل مشاهده است
-        await expect(confirmButton).toBeVisible();
-        // کلیک روی دکمه "تایید"
-        await confirmButton.click();
-
-
-        await this.page.waitForTimeout(5000);
-
-        const publishedDocumentButton = this.page.locator('.text__label__button').nth(0);
-        await expect(publishedDocumentButton).toBeVisible();
-        await publishedDocumentButton.click();
-
-
-        await this.page.waitForTimeout(10000);
-
-    }
+    const allDayButtons = await this.page
+      .locator('button[data-value]')
+      .allTextContents();
+    console.log('Available days:', allDayButtons);
+  }
 }

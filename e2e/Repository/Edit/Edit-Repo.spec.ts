@@ -5,48 +5,50 @@ import { EditRepository } from '../../utils/Edit-Repository';
 import path from 'path';
 
 test.describe('Repository Edit Tests', () => {
-    let authUtils: AuthUtils;
-    let repoUtils: RepositoryUtils;
-    let editRepo: EditRepository;
+  let authUtils: AuthUtils;
+  let repoUtils: RepositoryUtils;
+  let editRepo: EditRepository;
 
-    test.beforeEach(async ({ page }) => {
-        // ایجاد نمونه‌های کلاس‌های کمکی
-        authUtils = new AuthUtils(page);
-        repoUtils = new RepositoryUtils(page);
-        editRepo = new EditRepository(page);
-        
-        // لاگین قبل از هر تست
-        await authUtils.login('eli69', 'HQ[>684ngg');
-        await authUtils.navigateToMyRepositories();
-    });
+  test.beforeEach(async ({ page }) => {
+    // ایجاد نمونه‌های کلاس‌های کمکی
+    authUtils = new AuthUtils(page);
+    repoUtils = new RepositoryUtils(page);
+    editRepo = new EditRepository(page);
 
-    test('should edit repository', async ({ page }) => {
-        // ایجاد مخزن با نام یکتا
-        const repoName = await repoUtils.createRepositoryWithUniqueName('این یک مخزن تستی است', true);
+    // لاگین قبل از هر تست
+    await authUtils.login('eli69', 'HQ[>684ngg');
+    await authUtils.navigateToMyRepositories();
+  });
 
-        // رفتن به صفحه داشبورد
-        await editRepo.goToDashboard();
-        
-        // انتخاب اولین مخزن
-        await editRepo.selectFirstRepository();
-        
-       // کلیک روی دکمه منو
-        await editRepo.clickDropdownButton();
+  test('should edit repository', async ({ page }) => {
+    // ایجاد مخزن با نام یکتا
+    const repoName = await repoUtils.createRepositoryWithUniqueName(
+      'این یک مخزن تستی است',
+      true
+    );
 
-        // ویرایش نام مخزن
-        const newName = `مخزن-ویرایش-شده-${Date.now()}`;
-        await editRepo.editRepositoryName(newName);
+    // رفتن به صفحه داشبورد
+    await editRepo.goToDashboard();
 
-        // ویرایش توضیحات مخزن
-        await editRepo.editRepositoryDescription('این مخزن ویرایش شده است');
+    // انتخاب اولین مخزن
+    await editRepo.selectFirstRepository();
 
+    // کلیک روی دکمه منو
+    await editRepo.clickDropdownButton();
 
-        await editRepo.editRepositoryPic();
+    // ویرایش نام مخزن
+    const newName = `مخزن-ویرایش-شده-${Date.now()}`;
+    await editRepo.editRepositoryName(newName);
 
-        // // ذخیره تغییرات
-        await editRepo.saveChanges();
+    // ویرایش توضیحات مخزن
+    await editRepo.editRepositoryDescription('این مخزن ویرایش شده است');
 
-        // // انتظار برای نمایش پیام موفقیت‌آمیز
-        await editRepo.waitForSuccessToast();
-    });
-}); 
+    await editRepo.editRepositoryPic();
+
+    // // ذخیره تغییرات
+    await editRepo.saveChanges();
+
+    // // انتظار برای نمایش پیام موفقیت‌آمیز
+    await editRepo.waitForSuccessToast();
+  });
+});

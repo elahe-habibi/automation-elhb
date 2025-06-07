@@ -5,35 +5,38 @@ import { DocumentTemplateManager } from '../../utils/Create-TemplateDocument';
 import path from 'path';
 
 test.describe('Document Creation Tests', () => {
-    let authUtils: AuthUtils;
-    let repoUtils: RepositoryUtils;
-    let templateManager: DocumentTemplateManager;
+  let authUtils: AuthUtils;
+  let repoUtils: RepositoryUtils;
+  let templateManager: DocumentTemplateManager;
 
-    test.beforeEach(async ({ page }) => {
-        // ایجاد نمونه‌های کلاس‌های کمکی
-        authUtils = new AuthUtils(page);
-        repoUtils = new RepositoryUtils(page);
-        templateManager = new DocumentTemplateManager(page);
+  test.beforeEach(async ({ page }) => {
+    // ایجاد نمونه‌های کلاس‌های کمکی
+    authUtils = new AuthUtils(page);
+    repoUtils = new RepositoryUtils(page);
+    templateManager = new DocumentTemplateManager(page);
 
-        // لاگین قبل از هر تست
-        await authUtils.login('eli69', 'HQ[>684ngg');
-        await authUtils.navigateToMyRepositories();
-    });
+    // لاگین قبل از هر تست
+    await authUtils.login('eli69', 'HQ[>684ngg');
+    await authUtils.navigateToMyRepositories();
+  });
 
-    test('Create New Template Document', async ({ page }) => {
-        // ایجاد مخزن با نام یکتا
-        const repoName = await repoUtils.createRepositoryWithUniqueName('این یک مخزن تستی است', true);
+  test('Create New Template Document', async ({ page }) => {
+    // ایجاد مخزن با نام یکتا
+    const repoName = await repoUtils.createRepositoryWithUniqueName(
+      'این یک مخزن تستی است',
+      true
+    );
 
-        // رفتن به صفحه داشبورد
-        await templateManager.goToDashboard();
+    // رفتن به صفحه داشبورد
+    await templateManager.goToDashboard();
 
-        // انتخاب اولین مخزن
-        await templateManager.selectFirstRepository();
+    // انتخاب اولین مخزن
+    await templateManager.selectFirstRepository();
 
-        // کلیک روی دکمه ایجاد و انجام روند ایجاد سند
-        await templateManager.clickCreateButton();
+    // کلیک روی دکمه ایجاد و انجام روند ایجاد سند
+    await templateManager.clickCreateButton();
 
-        // انتظار برای نمایش پیام موفقیت‌آمیز
-        await templateManager.waitForSuccessToast();
-    });
-}); 
+    // انتظار برای نمایش پیام موفقیت‌آمیز
+    await templateManager.waitForSuccessToast();
+  });
+});

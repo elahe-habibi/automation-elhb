@@ -51,7 +51,9 @@ export class DocumentTemplateManager {
     await dropdownButton.click(); // باز کردن لیست
     await this.page.waitForTimeout(2000);
 
-    const clasorOption = this.page.locator('.select_option__text', { hasText: 'clasor' });
+    const clasorOption = this.page.locator('.select_option__text', {
+      hasText: 'clasor',
+    });
     await expect(clasorOption).toBeVisible();
     await clasorOption.click();
     await this.page.waitForTimeout(2000);
@@ -81,12 +83,18 @@ export class DocumentTemplateManager {
     await this.page.waitForTimeout(1000);
 
     // پر کردن فیلد "توضیحات سند"
-    const descriptionField = this.page.locator('.document-info-form__description');
+    const descriptionField = this.page.locator(
+      '.document-info-form__description'
+    );
     await expect(descriptionField).toBeVisible();
-    await descriptionField.fill('این یک سند تستی برای بررسی عملکرد Playwright است.');
+    await descriptionField.fill(
+      'این یک سند تستی برای بررسی عملکرد Playwright است.'
+    );
     await this.page.waitForTimeout(1000);
 
-    const finalContinueButton = this.page.locator('.dialog-footer__submit-button');
+    const finalContinueButton = this.page.locator(
+      '.dialog-footer__submit-button'
+    );
 
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(finalContinueButton).toBeVisible();
@@ -107,14 +115,16 @@ export class DocumentTemplateManager {
     await versionField.fill(uniqueVersionNumber);
     await this.page.waitForTimeout(1000);
 
-    const finalCreateButton = this.page.locator('.dialog-footer__submit-button');
+    const finalCreateButton = this.page.locator(
+      '.dialog-footer__submit-button'
+    );
 
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(finalCreateButton).toBeVisible();
 
     // کلیک روی دکمه "ایجاد"
     await finalCreateButton.click();
-    
+
     // انتظار برای اطمینان از تکمیل عملیات ایجاد سند
     await this.page.waitForTimeout(5000);
   }

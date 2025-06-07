@@ -45,13 +45,19 @@ export class CategoryManager {
     const uniqueCategoryName = `دسته‌بندی-تست-${Date.now()}`;
 
     // پر کردن فیلد "نام دسته‌بندی"
-    await this.page.fill('.category-create-dialog__form-name', uniqueCategoryName);
+    await this.page.fill(
+      '.category-create-dialog__form-name',
+      uniqueCategoryName
+    );
 
     // پر کردن فیلد "اولویت دسته‌بندی"
     await this.page.fill('.category-create-dialog__form-order', '1');
 
     // پر کردن فیلد "توضیحات دسته‌بندی"
-    await this.page.fill('.category-create-dialog__form-description', 'این یک دسته‌بندی تستی برای بررسی عملکرد Playwright است.');
+    await this.page.fill(
+      '.category-create-dialog__form-description',
+      'این یک دسته‌بندی تستی برای بررسی عملکرد Playwright است.'
+    );
 
     // ارسال فرم (اگر دکمه ذخیره وجود دارد، آن را کلیک کن)
     const saveButton = this.page.locator('.dialog-footer__submit-button');
@@ -64,7 +70,9 @@ export class CategoryManager {
    * @returns آیا فرم دسته‌بندی نمایش داده می‌شود
    */
   async isCategoryFormVisible() {
-    const categoryForm = this.page.locator('form').filter({ hasText: 'دسته‌بندی' });
+    const categoryForm = this.page
+      .locator('form')
+      .filter({ hasText: 'دسته‌بندی' });
     return await categoryForm.isVisible();
   }
 }

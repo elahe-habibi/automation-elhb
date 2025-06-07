@@ -19,7 +19,6 @@ export class EditRepository {
     await this.page.waitForLoadState('networkidle');
 
     await this.page.waitForTimeout(2000);
-
   }
 
   /**
@@ -38,7 +37,9 @@ export class EditRepository {
    * کلیک روی دکمه منو
    */
   async clickDropdownButton() {
-    const menuButton = this.page.locator('.repoInformationTab.repoActions button').nth(0); // یا nth(1) بسته به موقعیت صحیح
+    const menuButton = this.page
+      .locator('.repoInformationTab.repoActions button')
+      .nth(0); // یا nth(1) بسته به موقعیت صحیح
     await expect(menuButton).toBeVisible();
     await menuButton.click();
 
@@ -49,8 +50,6 @@ export class EditRepository {
 
     // کلیک روی دکمه "ویرایش"
     await editButton.click();
-
-
   }
 
   /**
@@ -63,13 +62,17 @@ export class EditRepository {
   }
 
   async editRepositoryPic() {
-    const imageRadioButton = this.page.locator('.repo-attach-default-image__radio');
+    const imageRadioButton = this.page.locator(
+      '.repo-attach-default-image__radio'
+    );
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(imageRadioButton).toBeVisible();
     // کلیک روی دکمه تصویر سفارشی
     await imageRadioButton.click();
 
-    const imageButton = this.page.locator('.repo-attach-default-image-item').first(); // یا .nth(x) بسته به گزینه مورد نظر
+    const imageButton = this.page
+      .locator('.repo-attach-default-image-item')
+      .first(); // یا .nth(x) بسته به گزینه مورد نظر
 
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(imageButton).toBeVisible();
@@ -77,7 +80,6 @@ export class EditRepository {
     // کلیک روی دکمه انتخاب‌شده
     await imageButton.click();
   }
-
 
   /**
    * ویرایش توضیحات مخزن
@@ -118,7 +120,7 @@ export class EditRepository {
         '.toast-success',
         '.success-toast',
         '[role="alert"]',
-        '.notification'
+        '.notification',
       ];
 
       // Wait for any of the possible toast elements

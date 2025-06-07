@@ -19,26 +19,18 @@ export class BookMarkDocument {
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);
 
-
     const menuButton = this.page.locator('.document-menu button').nth(0);
     await expect(menuButton).toBeVisible();
     await menuButton.click();
 
-
     const bookmarkButton = this.page.locator('.document-bookmark').nth(0);
     await expect(bookmarkButton).toBeVisible();
     await bookmarkButton.click();
-
 
     const confirmButton = this.page.locator('.dialog-footer__submit-button');
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(confirmButton).toBeVisible();
     // کلیک روی دکمه "تایید"
     await confirmButton.click();
-    
-
-
-
-
   }
 }

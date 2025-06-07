@@ -2,7 +2,9 @@
   "name": "playwright-test",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,ts,json,md}\""
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -10,6 +12,7 @@
   "devDependencies": {
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.18",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.3"
   }
 }
