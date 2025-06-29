@@ -14,7 +14,7 @@ export class BookMarkDocument {
   /**
    * ویرایش دسته‌بندی
    */
-  async bookmarkDocument() {
+  async bookmarkDocument(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);

@@ -14,10 +14,10 @@ export class PubliclastversionDocument {
   /**
    * ویرایش سند
    */
-  async Publiclastversion() {
+  async Publiclastversion(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(5000);
 
     const menuButton = this.page.locator('.document-menu button').nth(0);
     await expect(menuButton).toBeVisible();
@@ -44,6 +44,10 @@ export class PubliclastversionDocument {
       .nth(0);
     await expect(versionListButton).toBeVisible();
     await versionListButton.click();
+
+    const toastMessage = this.page.locator('.Toastify__toast-body');
+    await expect(toastMessage).toBeVisible({ timeout: 10000 });
+    await expect(toastMessage).toContainText('آخرین نسخه از سند عمومی شد.', { timeout: 5000 });
 
     await this.page.waitForTimeout(10000);
   }

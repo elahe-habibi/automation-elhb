@@ -14,7 +14,7 @@ export class DeleteRepository {
   /**
    * رفتن به صفحه داشبورد
    */
-  async goToDashboard() {
+  async goToDashboard(): Promise<void> {
     await this.page.goto('https://clasor-frontend.sandpod.ir/admin/dashboard');
     await this.page.waitForLoadState('networkidle');
 
@@ -24,7 +24,7 @@ export class DeleteRepository {
   /**
    * انتخاب اولین مخزن در لیست
    */
-  async selectFirstRepository() {
+  async selectFirstRepository(): Promise<void> {
     const firstRepo = this.page.locator('.repo-card').first();
     await firstRepo.click();
     await this.page.waitForLoadState('networkidle');
@@ -36,7 +36,7 @@ export class DeleteRepository {
   /**
    * کلیک روی دکمه منو
    */
-  async clickDropdownButton() {
+  async clickDropdownButton(): Promise<void> {
     const menuButton = this.page
       .locator('.repoInformationTab.repoActions button')
       .nth(0); // یا nth(1) بسته به موقعیت صحیح
@@ -73,5 +73,9 @@ export class DeleteRepository {
     await deleteBuutton.click();
 
     await this.page.waitForTimeout(3000);
+  }
+
+  async deleteRepo(): Promise<void> {
+    // ... existing code ...
   }
 }

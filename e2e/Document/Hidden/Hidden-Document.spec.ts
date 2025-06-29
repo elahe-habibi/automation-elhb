@@ -1,24 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
-import { EditCategory } from '../../utils/Edit-Categoty';
 import { DocumentManager } from '../../utils/Create-Document';
-import { listversionDocument } from '../../utils/Version-ListDoc';
 import { HiddenDocument } from '../../utils/Hidden-Document';
-import { PubliclastversionDocument } from '../../utils/Public-Lastversion';
-import path from 'path';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;
   let repoUtils: RepositoryUtils;
-  let publiclastverUtils: PubliclastversionDocument;
   let hiddenDocument: HiddenDocument;
 
   test.beforeEach(async ({ page }) => {
     // ایجاد نمونه‌های کلاس‌های کمکی
     authUtils = new AuthUtils(page);
     repoUtils = new RepositoryUtils(page);
-    publiclastverUtils = new PubliclastversionDocument(page);
     hiddenDocument = new HiddenDocument(page);
     // لاگین قبل از هر تست
     await authUtils.login('eli69', 'HQ[>684ngg');
@@ -44,10 +38,10 @@ test.describe('Repository Create and Share', () => {
     // کلیک روی دکمه ایجاد و انجام روند ایجاد سند
     await documentManager.clickCreateButton();
 
+    await hiddenDocument.HiddenDocument();
+
     const toastMessage = page.locator('.Toastify__toast-body');
     await expect(toastMessage).toBeVisible({ timeout: 10000 });
     await expect(toastMessage).toContainText('موفقیت', { timeout: 5000 });
-
-    await hiddenDocument.HiddenDocument();
   });
 });

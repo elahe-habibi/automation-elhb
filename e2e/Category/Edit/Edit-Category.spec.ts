@@ -3,7 +3,6 @@ import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
 import { CategoryManager } from '../../utils/Create-Category';
 import { EditCategory } from '../../utils/Edit-Categoty';
-import path from 'path';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;

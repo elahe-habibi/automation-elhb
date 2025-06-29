@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test';
+import { WaitUtils } from './wait-utils';
 
 /**
  * کلاس مدیریت ویرایش مخزن در سیستم
@@ -6,29 +7,28 @@ import { expect, Page } from '@playwright/test';
  */
 export class listversionDocument {
   private page: Page;
+  private waitUtils: WaitUtils;
 
   constructor(page: Page) {
     this.page = page;
+    this.waitUtils = new WaitUtils(page);
   }
 
   /**
    * ویرایش سند
    */
-  async listversion() {
-    // Wait for the page to be fully loaded
-    await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(2000);
+  async listversion(): Promise<void> {
+    await this.waitUtils.waitForPageLoad();
 
-    const menuButton = this.page.locator('.document-menu button').nth(0);
-    await expect(menuButton).toBeVisible();
-    await menuButton.click();
+    const menuButton = this.page.locator('.document-menu button').first();
+    await this.waitUtils.stableClick(menuButton);
 
     const versionListButton = this.page
       .locator('.document-version-list')
-      .nth(0);
-    await expect(versionListButton).toBeVisible();
-    await versionListButton.click();
+      .first();
+    await this.waitUtils.stableClick(versionListButton);
 
-    await this.page.waitForTimeout(10000);
+    const versionList = this.page.locator('.version-list').first();
+    await this.waitUtils.waitForElementStable(versionList);
   }
 }

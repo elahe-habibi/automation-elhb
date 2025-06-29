@@ -1,5 +1,6 @@
 import { expect, Page } from '@playwright/test';
 import { URLs, getFullUrl } from '../constants';
+import { WaitUtils } from './wait-utils';
 
 /**
  * کلاس مدیریت دسته‌بندی‌ها در سیستم
@@ -7,69 +8,79 @@ import { URLs, getFullUrl } from '../constants';
  */
 export class CategoryManager {
   private page: Page;
+  private waitUtils: WaitUtils;
 
   constructor(page: Page) {
     this.page = page;
+    this.waitUtils = new WaitUtils(page);
   }
 
   /**
    * رفتن به صفحه داشبورد
    */
-  async goToDashboard() {
+  async goToDashboard(): Promise<void> {
     await this.page.goto(getFullUrl(URLs.DASHBOARD));
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForTimeout(3000); // تاخیر ۲ ثانیه‌ای
   }
 
   /**
    * انتخاب اولین مخزن در لیست
    */
-  async selectFirstRepository() {
+  async selectFirstRepository(): Promise<void> {
     const firstRepo = this.page.locator('.repo-card').first();
+    await expect(firstRepo).toBeVisible();
     await firstRepo.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForTimeout(2000); // تاخیر ۲ ثانیه‌ای
   }
 
   /**
-   * کلیک روی دکمه ایجاد
+   * کلیک روی دکمه ایجاد و ایجاد دسته‌بندی جدید
    */
-  async clickCreateButton() {
+  async clickCreateButton(): Promise<void> {
     const createButton = this.page.getByRole('button', { name: 'ایجاد' });
-    await createButton.click();
+    await this.waitUtils.stableClick(createButton);
+
     const createCategoryButton = this.page.locator('.create-category');
-    // بررسی اینکه دکمه قابل مشاهده است
-    await expect(createCategoryButton).toBeVisible();
-    // کلیک روی دکمه "ایجاد دسته‌بندی"
-    await createCategoryButton.click();
+    await this.waitUtils.stableClick(createCategoryButton);
 
     // مقدار یونیک برای نام دسته‌بندی
     const uniqueCategoryName = `دسته‌بندی-تست-${Date.now()}`;
 
     // پر کردن فیلد "نام دسته‌بندی"
-    await this.page.fill(
-      '.category-create-dialog__form-name',
-      uniqueCategoryName
-    );
+    const nameInput = this.page.locator('.category-create-dialog__form-name');
+    await expect(nameInput).toBeVisible();
+    await nameInput.fill(uniqueCategoryName);
 
     // پر کردن فیلد "اولویت دسته‌بندی"
-    await this.page.fill('.category-create-dialog__form-order', '1');
+    const orderInput = this.page.locator('.category-create-dialog__form-order');
+    await expect(orderInput).toBeVisible();
+    await orderInput.fill('1');
 
     // پر کردن فیلد "توضیحات دسته‌بندی"
-    await this.page.fill(
-      '.category-create-dialog__form-description',
+    const descriptionInput = this.page.locator(
+      '.category-create-dialog__form-description'
+    );
+    await expect(descriptionInput).toBeVisible();
+    await descriptionInput.fill(
       'این یک دسته‌بندی تستی برای بررسی عملکرد Playwright است.'
     );
 
-    // ارسال فرم (اگر دکمه ذخیره وجود دارد، آن را کلیک کن)
+    // ارسال فرم
     const saveButton = this.page.locator('.dialog-footer__submit-button');
     await expect(saveButton).toBeVisible();
     await saveButton.click();
+
+    // انتظار برای تکمیل عملیات
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
    * بررسی نمایش فرم دسته‌بندی
    * @returns آیا فرم دسته‌بندی نمایش داده می‌شود
    */
-  async isCategoryFormVisible() {
+  async isCategoryFormVisible(): Promise<boolean> {
     const categoryForm = this.page
       .locator('form')
       .filter({ hasText: 'دسته‌بندی' });

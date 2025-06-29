@@ -4,8 +4,6 @@ import { RepositoryUtils } from '../../utils/Create-Repository';
 import { EditRepository } from '../../utils/Edit-Repository';
 import { KeyRepository } from '../../utils/Key-Repo';
 
-import path from 'path';
-
 test.describe('Repository Edit Tests', () => {
   let authUtils: AuthUtils;
   let repoUtils: RepositoryUtils;

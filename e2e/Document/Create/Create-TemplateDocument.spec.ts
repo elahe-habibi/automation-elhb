@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
 import { DocumentTemplateManager } from '../../utils/Create-TemplateDocument';
-import path from 'path';
 
 test.describe('Document Creation Tests', () => {
   let authUtils: AuthUtils;

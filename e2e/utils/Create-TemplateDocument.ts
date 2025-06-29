@@ -1,5 +1,6 @@
 import { expect, Page } from '@playwright/test';
 import { URLs, getFullUrl } from '../constants';
+import { WaitUtils } from './wait-utils';
 
 /**
  * کلاس مدیریت دسته‌بندی‌ها در سیستم
@@ -7,65 +8,56 @@ import { URLs, getFullUrl } from '../constants';
  */
 export class DocumentTemplateManager {
   private page: Page;
+  private waitUtils: WaitUtils;
 
   constructor(page: Page) {
     this.page = page;
+    this.waitUtils = new WaitUtils(page);
   }
 
   /**
    * رفتن به صفحه داشبورد
    */
-  async goToDashboard() {
+  async goToDashboard(): Promise<void> {
     await this.page.goto(getFullUrl(URLs.DASHBOARD));
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
    * انتخاب اولین مخزن در لیست
    */
-  async selectFirstRepository() {
+  async selectFirstRepository(): Promise<void> {
     const firstRepo = this.page.locator('.repo-card').first();
     await firstRepo.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
-   * کلیک روی دکمه ایجاد
+   * کلیک روی دکمه ایجاد و ایجاد سند نمونه
    */
-  async clickCreateButton() {
+  async clickCreateButton(): Promise<void> {
+    await this.waitUtils.waitForPageLoad();
+
     const createButton = this.page.getByRole('button', { name: 'ایجاد' });
-    await createButton.click();
-    await this.page.waitForTimeout(2000);
+    await this.waitUtils.stableClick(createButton);
 
     const templateButton = this.page.locator('.create-template');
-
-    // بررسی اینکه دکمه قابل مشاهده است
-    await expect(templateButton).toBeVisible();
-
-    // کلیک روی دکمه "نمونه سند"
-    await templateButton.click();
-    await this.page.waitForTimeout(2000);
+    await this.waitUtils.stableClick(templateButton);
 
     // انتخاب گزینه "clasor" از لیست
     const dropdownButton = this.page.locator('.document-type__select');
-    await dropdownButton.click(); // باز کردن لیست
-    await this.page.waitForTimeout(2000);
+    await expect(dropdownButton).toBeVisible();
+    await dropdownButton.click();
 
     const clasorOption = this.page.locator('.select_option__text', {
       hasText: 'clasor',
     });
     await expect(clasorOption).toBeVisible();
     await clasorOption.click();
-    await this.page.waitForTimeout(2000);
 
     const continueButton = this.page.locator('.dialog-footer__submit-button');
-
-    // بررسی اینکه دکمه قابل مشاهده است
     await expect(continueButton).toBeVisible();
-
-    // کلیک روی دکمه "ادامه"
     await continueButton.click();
-    await this.page.waitForTimeout(2000);
 
     // مقدار یونیک برای نام سند
     const uniqueDocumentName = `سند-تست-${Date.now()}`;
@@ -74,13 +66,11 @@ export class DocumentTemplateManager {
     const nameField = this.page.locator('.document-info-form__name');
     await expect(nameField).toBeVisible();
     await nameField.fill(uniqueDocumentName);
-    await this.page.waitForTimeout(1000);
 
     // پر کردن فیلد "اولویت سند"
     const orderField = this.page.locator('.document-info-form__order');
     await expect(orderField).toBeVisible();
     await orderField.fill('1');
-    await this.page.waitForTimeout(1000);
 
     // پر کردن فیلد "توضیحات سند"
     const descriptionField = this.page.locator(
@@ -90,49 +80,34 @@ export class DocumentTemplateManager {
     await descriptionField.fill(
       'این یک سند تستی برای بررسی عملکرد Playwright است.'
     );
-    await this.page.waitForTimeout(1000);
 
     const finalContinueButton = this.page.locator(
       '.dialog-footer__submit-button'
     );
-
-    // بررسی اینکه دکمه قابل مشاهده است
     await expect(finalContinueButton).toBeVisible();
-
-    // کلیک روی دکمه "ادامه"
     await finalContinueButton.click();
-    await this.page.waitForTimeout(2000);
 
+    // پر کردن اطلاعات نسخه
     const versionField = this.page.locator('.document-version-form__name');
-
-    // بررسی اینکه فیلد قابل مشاهده است
     await expect(versionField).toBeVisible();
 
-    // مقدار یونیک برای شماره نسخه
     const uniqueVersionNumber = `نسخه-${Date.now()}`;
-
-    // پر کردن فیلد "نام نسخه"
     await versionField.fill(uniqueVersionNumber);
-    await this.page.waitForTimeout(1000);
 
     const finalCreateButton = this.page.locator(
       '.dialog-footer__submit-button'
     );
-
-    // بررسی اینکه دکمه قابل مشاهده است
     await expect(finalCreateButton).toBeVisible();
-
-    // کلیک روی دکمه "ایجاد"
     await finalCreateButton.click();
 
-    // انتظار برای اطمینان از تکمیل عملیات ایجاد سند
-    await this.page.waitForTimeout(5000);
+    // انتظار برای تکمیل عملیات
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
    * انتظار برای نمایش پیام موفقیت‌آمیز
    */
-  async waitForSuccessToast() {
+  async waitForSuccessToast(): Promise<void> {
     const toastMessage = this.page.locator('.Toastify__toast-body');
     await expect(toastMessage).toBeVisible({ timeout: 10000 });
     await expect(toastMessage).toContainText('موفقیت', { timeout: 5000 });

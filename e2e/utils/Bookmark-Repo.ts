@@ -14,29 +14,27 @@ export class EditRepositoryBookMark {
   /**
    * رفتن به صفحه داشبورد
    */
-  async goToDashboard() {
+  async goToDashboard(): Promise<void> {
     await this.page.goto('https://clasor-frontend.sandpod.ir/admin/dashboard');
     await this.page.waitForLoadState('networkidle');
-
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(3000);
   }
 
   /**
    * انتخاب اولین مخزن در لیست
    */
-  async selectFirstRepository() {
+  async selectFirstRepository(): Promise<void> {
     const firstRepo = this.page.locator('.repo-card').first();
     await firstRepo.click();
     await this.page.waitForLoadState('networkidle');
-
     // اضافه کردن تاخیر برای اطمینان از بارگذاری کامل صفحه
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(3000);
   }
 
   /**
    * کلیک روی دکمه منو
    */
-  async clickDropdownButton() {
+  async clickDropdownButton(): Promise<void> {
     const menuButton = this.page
       .locator('.repoInformationTab.repoActions button')
       .nth(0); // یا nth(1) بسته به موقعیت صحیح
@@ -58,5 +56,9 @@ export class EditRepositoryBookMark {
     await expect(confirmButton).toBeVisible();
     // کلیک روی دکمه "تایید"
     await confirmButton.click();
+  }
+
+  async bookmarkRepo(): Promise<void> {
+    //... existing code ...
   }
 }

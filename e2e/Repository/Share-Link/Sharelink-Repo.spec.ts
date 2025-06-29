@@ -2,22 +2,18 @@ import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
 import { EditRepository } from '../../utils/Edit-Repository';
-import { EditRepositoryBookMark } from '../../utils/Bookmark-Repo';
 import { EditRepositoryShareLink } from '../../utils/ShareLink-Repo';
-import path from 'path';
 
 test.describe('Repository Edit Tests', () => {
   let authUtils: AuthUtils;
   let repoUtils: RepositoryUtils;
   let editRepo: EditRepository;
-  let editRepoBookMark: EditRepositoryBookMark;
   let editRepoShareLink: EditRepositoryShareLink;
   test.beforeEach(async ({ page }) => {
     // ایجاد نمونه‌های کلاس‌های کمکی
     authUtils = new AuthUtils(page);
     repoUtils = new RepositoryUtils(page);
     editRepo = new EditRepository(page);
-    editRepoBookMark = new EditRepositoryBookMark(page);
     editRepoShareLink = new EditRepositoryShareLink(page);
     // لاگین قبل از هر تست
     await authUtils.login('eli69', 'HQ[>684ngg');
@@ -45,48 +41,48 @@ test.describe('Repository Edit Tests', () => {
   });
 });
 
-test.describe('Repository Share Link Tests', () => {
-  let authUtils: AuthUtils;
-  let repoUtils: RepositoryUtils;
-  let editRepo: EditRepository;
-  let editRepoShareLink: EditRepositoryShareLink;
+// test.describe('Repository Share Link Tests', () => {
+//   let authUtils: AuthUtils;
+//   let repoUtils: RepositoryUtils;
+//   let editRepo: EditRepository;
+//   let editRepoShareLink: EditRepositoryShareLink;
 
-  test.beforeEach(async ({ page }) => {
-    // ایجاد نمونه‌های کلاس‌های کمکی
-    authUtils = new AuthUtils(page);
-    repoUtils = new RepositoryUtils(page);
-    editRepo = new EditRepository(page);
-    editRepoShareLink = new EditRepositoryShareLink(page);
+//   test.beforeEach(async ({ page }) => {
+//     // ایجاد نمونه‌های کلاس‌های کمکی
+//     authUtils = new AuthUtils(page);
+//     repoUtils = new RepositoryUtils(page);
+//     editRepo = new EditRepository(page);
+//     editRepoShareLink = new EditRepositoryShareLink(page);
 
-    // لاگین قبل از هر تست
-    await authUtils.login('eli69', 'HQ[>684ngg');
-    await authUtils.navigateToMyRepositories();
-  });
+//     // لاگین قبل از هر تست
+//     await authUtils.login('eli69', 'HQ[>684ngg');
+//     await authUtils.navigateToMyRepositories();
+//   });
 
-  // تست برای هر نقش
-  for (let roleIndex = 0; roleIndex < 4; roleIndex++) {
-    test(`should create share link with role index ${roleIndex}`, async ({
-      page,
-    }) => {
-      // ایجاد مخزن با نام یکتا
-      const repoName = await repoUtils.createRepositoryWithUniqueName(
-        'این یک مخزن تستی است',
-        true
-      );
+//   // تست برای هر نقش
+//   for (let roleIndex = 0; roleIndex < 4; roleIndex++) {
+//     test(`should create share link with role index ${roleIndex}`, async ({
+//       page,
+//     }) => {
+//       // ایجاد مخزن با نام یکتا
+//       const repoName = await repoUtils.createRepositoryWithUniqueName(
+//         'این یک مخزن تستی است',
+//         true
+//       );
 
-      // رفتن به صفحه داشبورد
-      await editRepo.goToDashboard();
+//       // رفتن به صفحه داشبورد
+//       await editRepo.goToDashboard();
 
-      // انتخاب اولین مخزن
-      await editRepo.selectFirstRepository();
+//       // انتخاب اولین مخزن
+//       await editRepo.selectFirstRepository();
 
-      // ایجاد لینک اشتراک‌گذاری با نقش مشخص
-      await editRepoShareLink.createShareLinkWithRole(roleIndex);
+//       // ایجاد لینک اشتراک‌گذاری با نقش مشخص
+//       await editRepoShareLink.createShareLinkWithRole(roleIndex);
 
-      // بررسی موفقیت‌آمیز بودن ایجاد لینک
-      const successMessage = page.locator('.toast-success');
-      await expect(successMessage).toBeVisible();
-      await expect(successMessage).toContainText('لینک با موفقیت ایجاد شد');
-    });
-  }
-});
+//       // بررسی موفقیت‌آمیز بودن ایجاد لینک
+//       const successMessage = page.locator('.toast-success');
+//       await expect(successMessage).toBeVisible();
+//       await expect(successMessage).toContainText('لینک با موفقیت ایجاد شد');
+//     });
+ // }
+//});

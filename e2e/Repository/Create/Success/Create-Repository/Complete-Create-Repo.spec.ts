@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { AuthUtils } from '../../../../utils/auth';
 import { RepositoryUtils } from '../../../../utils/Create-Repository';
 import path from 'path';
@@ -21,7 +21,7 @@ test.describe('Repository Create and Share', () => {
     page,
   }) => {
     // ایجاد مخزن با نام یکتا
-    const repoName = await repoUtils.createRepositoryWithUniqueName(
+    await repoUtils.createRepositoryWithUniqueName(
       'این یک مخزن تستی است',
       true
     );
@@ -33,10 +33,9 @@ test.describe('Repository Create and Share', () => {
     const imagePath = path.join(__dirname, '../../assets/picture.jpg');
     await repoUtils.uploadCustomRepositoryImage(imagePath);
 
-    // انتظار برای تکمیل فرآیند
-    await page.waitForTimeout(2000);
+    // بررسی موفقیت‌آمیز بودن ایجاد لینک
+    const successMessage = page.locator('.toast-success');
+    await expect(successMessage).toBeVisible();
+    await expect(successMessage).toContainText('مخزن با موفقیت ایجاد شد');
   });
 });
-
-// // ایجاد تگ
-// await repoUtils.createTag('تست');

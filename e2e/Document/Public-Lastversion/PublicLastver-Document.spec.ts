@@ -5,7 +5,6 @@ import { EditCategory } from '../../utils/Edit-Categoty';
 import { DocumentManager } from '../../utils/Create-Document';
 import { listversionDocument } from '../../utils/Version-ListDoc';
 import { PubliclastversionDocument } from '../../utils/Public-Lastversion';
-import path from 'path';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;
@@ -42,10 +41,8 @@ test.describe('Repository Create and Share', () => {
     // کلیک روی دکمه ایجاد و انجام روند ایجاد سند
     await documentManager.clickCreateButton();
 
+
     await publiclastverUtils.Publiclastversion();
 
-    const toastMessage = page.locator('.Toastify__toast-body');
-    await expect(toastMessage).toBeVisible({ timeout: 10000 });
-    await expect(toastMessage).toContainText('موفقیت', { timeout: 5000 });
   });
 });

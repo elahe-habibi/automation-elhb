@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test';
+import { WaitUtils } from './wait-utils';
 
 /**
  * کلاس مدیریت ویرایش مخزن در سیستم
@@ -6,15 +7,17 @@ import { expect, Page } from '@playwright/test';
  */
 export class ArchiveRepository {
   private page: Page;
+  private waitUtils: WaitUtils;
 
   constructor(page: Page) {
     this.page = page;
+    this.waitUtils = new WaitUtils(page);
   }
 
   /**
    * رفتن به صفحه داشبورد
    */
-  async goToDashboard() {
+  async goToDashboard(): Promise<void> {
     await this.page.goto('https://clasor-frontend.sandpod.ir/admin/dashboard');
     await this.page.waitForLoadState('networkidle');
 
@@ -24,7 +27,7 @@ export class ArchiveRepository {
   /**
    * انتخاب اولین مخزن در لیست
    */
-  async selectFirstRepository() {
+  async selectFirstRepository(): Promise<void> {
     const firstRepo = this.page.locator('.repo-card').first();
     await firstRepo.click();
     await this.page.waitForLoadState('networkidle');
@@ -36,7 +39,7 @@ export class ArchiveRepository {
   /**
    * کلیک روی دکمه منو
    */
-  async clickDropdownButton() {
+  async clickDropdownButton(): Promise<void> {
     const menuButton = this.page
       .locator('.repoInformationTab.repoActions button')
       .nth(0); // یا nth(1) بسته به موقعیت صحیح
@@ -65,12 +68,13 @@ export class ArchiveRepository {
     await expect(manageReposButton).toBeVisible();
     await manageReposButton.click();
 
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(5000);
 
-    const archivedReposButton = this.page.locator('button.text-link').nth(3);
+    const archivedReposButton = this.page.locator('button.text-link').nth(5);
     await expect(archivedReposButton).toBeVisible();
     await archivedReposButton.click();
 
     await this.page.waitForTimeout(3000);
   }
+
 }

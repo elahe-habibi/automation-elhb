@@ -14,7 +14,7 @@ export class EditRepositoryShareLink {
   /**
    * رفتن به صفحه داشبورد
    */
-  async goToDashboard() {
+  async goToDashboard(): Promise<void> {
     await this.page.goto('https://clasor-frontend.sandpod.ir/admin/dashboard');
     await this.page.waitForLoadState('networkidle');
 
@@ -24,7 +24,7 @@ export class EditRepositoryShareLink {
   /**
    * انتخاب اولین مخزن در لیست
    */
-  async selectFirstRepository() {
+  async selectFirstRepository(): Promise<void> {
     const firstRepo = this.page.locator('.repo-card').first();
     await firstRepo.click();
     await this.page.waitForLoadState('networkidle');
@@ -37,7 +37,7 @@ export class EditRepositoryShareLink {
    * ایجاد لینک اشتراک‌گذاری با نقش مشخص
    * @param roleIndex - ایندکس نقش (0 تا 3)
    */
-  async createShareLinkWithRole(roleIndex: number) {
+  async createShareLinkWithRole(roleIndex: number): Promise<void> {
     const menuButton = this.page
       .locator('.repoInformationTab.repoActions button')
       .nth(roleIndex);
@@ -113,7 +113,11 @@ export class EditRepositoryShareLink {
   }
 
   // برای سازگاری با کد قبلی، متد قبلی را حفظ می‌کنیم
-  async clickDropdownButton() {
+  async clickDropdownButton(): Promise<void> {
     await this.createShareLinkWithRole(0);
+  }
+
+  async shareLinkRepo(): Promise<void> {
+    // ... existing code ...
   }
 }

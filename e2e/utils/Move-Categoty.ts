@@ -14,7 +14,7 @@ export class MoveCategory {
   /**
    * ویرایش دسته‌بندی
    */
-  async moveCategory() {
+  async moveCategory(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);
@@ -36,16 +36,18 @@ export class MoveCategory {
     await selectButton.click();
 
     // انتخاب دومین گزینه از لیست
-    const secondOption = this.page.locator('.move-category-item').nth(1);
+    const secondOption = this.page.locator('.move-category-item').nth(0);
     await expect(secondOption).toBeVisible();
     await secondOption.click();
 
-    const confirmButton = this.page.locator('.dialog-footer__submit-button.bg-primary-normal');
+    const confirmButton = this.page.locator(
+      '.dialog-footer__submit-button.bg-primary-normal'
+    );
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(confirmButton).toBeVisible();
     // کلیک روی دکمه "تایید"
     await confirmButton.click();
-    
+
     await this.page.waitForTimeout(2000);
   }
 }

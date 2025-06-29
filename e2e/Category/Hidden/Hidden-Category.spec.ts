@@ -3,7 +3,6 @@ import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
 import { CategoryManager } from '../../utils/Create-Category';
 import { HiddenCategory } from '../../utils/Hidden-Categoty';
-import path from 'path';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;
@@ -48,5 +47,7 @@ test.describe('Repository Create and Share', () => {
     const toastMessage = page.locator('.Toastify__toast-body');
     await expect(toastMessage).toBeVisible({ timeout: 10000 });
     await expect(toastMessage).toContainText('مخفی شد', { timeout: 5000 });
+
+    await page.waitForTimeout(2000); // تاخیر ۲ ثانیه‌ای
   });
 });

@@ -14,7 +14,7 @@ export class SubCategory {
   /**
    * ویرایش دسته‌بندی
    */
-  async subCategory() {
+  async subCategory(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);
@@ -53,15 +53,15 @@ export class SubCategory {
       'این یک دسته‌بندی جدید است که برای تست ایجاد شده است.'
     );
 
-
-    const createBuuton = this.page.locator('.dialog-footer__submit-button.bg-primary-normal');
+    const createBuuton = this.page.locator(
+      '.dialog-footer__submit-button.bg-primary-normal'
+    );
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(createBuuton).toBeVisible();
     // کلیک روی دکمه "ایجاد"
     await createBuuton.click();
 
     await this.page.waitForTimeout(2000);
-
 
     const firstRow = this.page.locator('.category-table-row').first();
     // بررسی اینکه رکورد قابل مشاهده است
@@ -70,7 +70,5 @@ export class SubCategory {
     await firstRow.click();
 
     await this.page.waitForTimeout(5000);
-
-  
   }
 }

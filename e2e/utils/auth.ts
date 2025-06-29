@@ -1,116 +1,134 @@
-import { Page } from '@playwright/test';
-import { expect } from '@playwright/test';
-import { URLs, getFullUrl, getSSOUrl } from '../constants';
+import { Page, expect } from '@playwright/test';
+import { URLs, getFullUrl } from '../constants';
+import { WaitUtils } from './wait-utils';
 
 export class AuthUtils {
   private page: Page;
+  private waitUtils: WaitUtils;
 
   constructor(page: Page) {
     this.page = page;
+    this.waitUtils = new WaitUtils(page);
   }
 
-  async login(username: string, password: string) {
-    // Navigate to the website
+  async login(username: string, password: string): Promise<void> {
+    // رفتن به صفحه لاگین
     await this.page.goto(getFullUrl(URLs.LOGIN));
+    await this.waitUtils.waitForPageLoad();
 
-    // Locate the login button using role and click it
-    await this.page.waitForSelector('button:has-text("ورود")');
-    const loginButton = await this.page.locator('button:has-text("ورود")');
+    // کلیک روی دکمه ورود
+    const loginButton = this.page.getByRole('button', { name: 'ورود' });
     await loginButton.click();
 
-    // Wait for any navigation to complete
-    console.log('Waiting for navigation...');
-    await this.page.waitForLoadState('networkidle');
-    console.log('Navigation complete');
+    // انتظار برای بارگذاری فرم
+    await this.page.waitForSelector('#authIdentity-inp', { state: 'visible' });
 
-    // Locate and fill the username and password fields
-    console.log('Looking for username field...');
-    const usernameField = await this.page.locator('#authIdentity-inp');
-    await expect(usernameField).toBeVisible({ timeout: 10000 });
-    console.log('Username field found');
-    const passwordField = await this.page.locator('#authPassword-inp');
-    await usernameField.fill(username);
-    await passwordField.fill(password);
+    // پر کردن فرم با سلکتورهای دقیق
+    const usernameInput = this.page.locator('#authIdentity-inp');
+    await usernameInput.waitFor({ state: 'visible' });
+    await usernameInput.fill(username);
 
-    // Click the login button
-    const submitButton = await this.page.locator('#authLoginBtn');
+    const passwordInput = this.page.locator('#authPassword-inp');
+    await passwordInput.waitFor({ state: 'visible' });
+    await passwordInput.fill(password);
+
+    // کلیک روی دکمه ورود در فرم
+    const submitButton = this.page.locator('#authLoginBtn');
+    await submitButton.waitFor({ state: 'visible' });
     await submitButton.click();
 
-    // Wait for navigation to the dashboard URL
+    // انتظار برای بارگذاری صفحه
+    await this.waitUtils.waitForPageLoad();
+
+    // اطمینان از ورود موفق
     await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
   }
 
-  async navigateToMyRepositories() {
+  async navigateToMyRepositories(): Promise<void> {
     // Wait for navigation to the dashboard URL to ensure page is loaded
     await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
 
     // Wait for the page to fully load
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
 
     // Click on the "Repository Management" link (مدیریت مخزن‌ها)
-    const repoManagementButton = await this.page.locator(
+    const repoManagementButton = this.page.locator(
       'button.flex.items-center.w-full.py-4.flex-row-reverse:has(.title_t4:has-text("مدیریت مخزن‌ها"))'
     );
     await expect(repoManagementButton).toBeVisible();
     await repoManagementButton.click();
 
     // Wait for the page to load
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
 
     // Click on the "My Repositories" button using specific class selectors
-    const myRepositoriesButton = await this.page.locator(
+    const myRepositoriesButton = this.page.locator(
       'button.align-middle.select-none.font-sans.font-bold.text-center.uppercase.text-xs.py-3.rounded-lg:has(.title_t3:has-text("مخزن‌های من"))'
     );
     await expect(myRepositoriesButton).toBeVisible();
     await myRepositoriesButton.click();
     // Wait for the page to load
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
-  async loginWithAnotherAccount(username: string, password: string) {
+  async loginWithAnotherAccount(
+    username: string,
+    password: string
+  ): Promise<void> {
     // Navigate to the website
     await this.page.goto(getFullUrl(URLs.LOGIN));
 
     // Locate the login button using role and click it
-    await this.page.waitForSelector('button:has-text("ورود")');
-    const loginButton = await this.page.locator('button:has-text("ورود")');
+    const loginButton = this.page.locator('button:has-text("ورود")');
+    await this.waitUtils.waitForElementStable(loginButton);
     await loginButton.click();
 
-    // Wait for navigation to the expected URL
-    await this.page.waitForURL(
-      url => url.toString().includes('sso.sandpod.ir'),
-      { timeout: 30000 }
-    );
+    // // Wait for navigation to the expected URL
+    // await this.page.waitForURL(
+    //   url => url.toString().includes('sso.sandpod.ir'),
+    //   {
+    //     timeout: 30000,
+    //   }
+    // );
 
-    // Wait for the page to fully load
-    await this.page.waitForLoadState('networkidle');
+    // // Wait for the page to fully load
+    // await this.page.waitForLoadState('domcontentloaded');
 
     // Locate and click the "ورود با حساب دیگر" button
-    const switchAccountButton = await this.page.locator('a#authSelAccBtn');
+    const switchAccountButton = this.page.locator('a#authSelAccBtn');
     await expect(switchAccountButton).toBeVisible();
     await switchAccountButton.click();
 
     // Locate and fill the username and password fields
-    const usernameField = await this.page.locator('#authIdentity-inp');
-    const passwordField = await this.page.locator('#authPassword-inp');
+    const usernameField = this.page.locator('#authIdentity-inp');
+    const passwordField = this.page.locator('#authPassword-inp');
     await usernameField.fill(username);
     await passwordField.fill(password);
 
     // Click the login button
-    const submitButton = await this.page.locator('#authLoginBtn');
-    await submitButton.click();
+    const submitButton = this.page.locator('#authLoginBtn');
+    await this.waitUtils.stableClick(submitButton);
 
-    // Wait for navigation to the dashboard URL
+    //Wait for navigation to the dashboard URL
     await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
+
+    await this.page.waitForTimeout(3000);
+
+    const dashboardButton = this.page.locator('.sidebar-button-active');
+    // بررسی اینکه دکمه قابل مشاهده است
+    await expect(dashboardButton).toBeVisible();
+    // کلیک روی دکمه "داشبورد"
+    await dashboardButton.click();
+    
   }
 
-  async logout() {
+  async logout(): Promise<void> {
     // Click on profile button
-    const profileButton = await this.page.getByRole('button', { name: /.*/ });
+    const profileButton = this.page.getByRole('button', { name: /.*/ });
     await profileButton.click();
 
     // Click the logout button
-    const logoutButtonElement = await this.page.locator(
+    const logoutButtonElement = this.page.locator(
       'button[role="menuitem"]:has-text("خروج از حساب")'
     );
     await expect(logoutButtonElement).toBeVisible();

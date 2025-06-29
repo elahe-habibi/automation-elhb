@@ -3,7 +3,6 @@ import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
 import { EditRepository } from '../../utils/Edit-Repository';
 import { EditRepositoryBookMark } from '../../utils/Bookmark-Repo';
-import path from 'path';
 
 test.describe('Repository Edit Tests', () => {
   let authUtils: AuthUtils;

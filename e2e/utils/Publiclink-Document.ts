@@ -14,10 +14,10 @@ export class PubliclinknDocument {
   /**
    * ویرایش سند
    */
-  async PubliclinkDoc() {
+  async PubliclinkDoc(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(5000);
 
     const menuButton = this.page.locator('.document-menu button').nth(0);
     await expect(menuButton).toBeVisible();
@@ -63,7 +63,13 @@ export class PubliclinknDocument {
     await expect(confirmButton).toBeVisible();
     await confirmButton.click();
 
-    await this.page.waitForTimeout(5000);
+    await this.page.waitForTimeout(2000);
+
+
+    const toastMessage = this.page.locator('.Toastify__toast-body');
+    await expect(toastMessage).toBeVisible({ timeout: 10000 });
+    await expect(toastMessage).toContainText('لینک انتشار سند با موفقیت ایجاد شد', { timeout: 5000 });
+
 
     const publishedDocumentButton = this.page
       .locator('.text__label__button')

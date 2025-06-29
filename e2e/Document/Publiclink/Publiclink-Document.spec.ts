@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
-import { EditCategory } from '../../utils/Edit-Categoty';
 import { DocumentManager } from '../../utils/Create-Document';
 import { PubliclinknDocument } from '../../utils/Publiclink-Document';
-import path from 'path';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;
@@ -41,10 +39,8 @@ test.describe('Repository Create and Share', () => {
     // کلیک روی دکمه ایجاد و انجام روند ایجاد سند
     await documentManager.clickCreateButton();
 
-    const toastMessage = page.locator('.Toastify__toast-body');
-    await expect(toastMessage).toBeVisible({ timeout: 10000 });
-    await expect(toastMessage).toContainText('موفقیت', { timeout: 5000 });
-
     await PubliclinkDocUtils.PubliclinkDoc();
+
+    
   });
 });

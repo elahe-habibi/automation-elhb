@@ -14,7 +14,7 @@ export class EditCategory {
   /**
    * ویرایش دسته‌بندی
    */
-  async editCategory() {
+  async editCategory(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);

@@ -14,7 +14,7 @@ export class DeleteCategory {
   /**
    * ویرایش دسته‌بندی
    */
-  async deleteCategory() {
+  async deleteCategory(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);

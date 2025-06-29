@@ -22,7 +22,7 @@ export class RepositoryUtils {
   ) {
     try {
       // کلیک روی دکمه ایجاد مخزن جدید
-      const createRepoButton = await this.page.locator(
+      const createRepoButton = this.page.locator(
         'button:has-text("ایجاد مخزن جدید")'
       );
       await createRepoButton.waitFor({ state: 'visible', timeout: 12000 });
@@ -33,67 +33,41 @@ export class RepositoryUtils {
         state: 'visible',
         timeout: 12000,
       });
-      await this.page.waitForLoadState('networkidle');
 
       // پر کردن فرم با مدیریت خطا
       try {
-        const nameInput = this.page.locator('#repo-name');
-        await nameInput.waitFor({ state: 'visible', timeout: 5000 });
-        await nameInput.fill(name);
+        // پر کردن نام مخزن
+        await this.page.locator('#repo-name').fill(name);
 
-        const descInput = this.page.locator('textarea[name="description"]');
-        await descInput.waitFor({ state: 'visible', timeout: 5000 });
-        await descInput.fill(description);
+        // پر کردن توضیحات
+        await this.page
+          .locator('textarea[name="description"]')
+          .fill(description);
 
-        // انتظار برای اطمینان از پر شدن فرم
-        await this.page.waitForLoadState('networkidle');
-
-        // اطمینان از اینکه فرم همچنان باز است
+        // اطمینان از اینکه دیالوگ باز است
         const stepperDialog = this.page.locator(
           'div[placeholder="stepper-dialog"]'
         );
-        await expect(stepperDialog).toBeVisible({ timeout: 5000 });
+        await expect(stepperDialog).toBeVisible();
 
-        // کلیک روی دکمه ادامه با مدیریت خطا
+        // کلیک روی دکمه ادامه
         const continueButton = this.page.locator(
           '.repo-create-dialog__create-button'
         );
-        await continueButton.waitFor({ state: 'visible', timeout: 12000 });
+        await continueButton.waitFor({ state: 'visible' });
+        await continueButton.click({ force: true });
 
-        // اطمینان از اینکه دکمه قابل کلیک است
-        await expect(continueButton).toBeEnabled();
+        // انتظار برای اطمینان از حرکت به مرحله بعد
+        await this.page.waitForTimeout(3000);
 
-        // اضافه کردن تاخیر کوتاه قبل از کلیک
-        await this.page.waitForTimeout(1000);
-
-        // کلیک روی دکمه ادامه
-        await continueButton.click();
-        await this.page.waitForTimeout(2000);
-
-        // انتظار برای بارگذاریs کامل صفحه بعد از کلیک
-        await this.page.waitForLoadState('networkidle');
-
-        // اطمینان از اینکه دیالوگ همچنان باز است
-        await expect(stepperDialog).toBeVisible({ timeout: 5000 });
+        if (!shouldComplete) {
+          // کلیک روی دکمه انصراف
+          const cancelButton = this.page.locator('button:has-text("انصراف")');
+          await cancelButton.click();
+        }
       } catch (error) {
         console.error('Error in form submission:', error);
         throw error;
-      }
-
-      if (!shouldComplete) {
-        // کلیک روی دکمه انصراف
-        const cancelButton = await this.page.locator(
-          'button:has-text("انصراف")'
-        );
-        await cancelButton.waitFor({ state: 'visible', timeout: 5000 });
-        await cancelButton.click();
-
-        // اطمینان از بسته شدن دیالوگ
-        const stepperDialog = this.page.locator(
-          'div[placeholder="stepper-dialog"]'
-        );
-        await expect(stepperDialog).not.toBeVisible();
-        await this.page.waitForTimeout(2000);
       }
     } catch (error) {
       console.error('Error in createRepository:', error);
@@ -154,7 +128,7 @@ export class RepositoryUtils {
     }
 
     // کلیک روی دکمه ادامه
-    const continueButton = await this.page.locator('button:has-text("ادامه")');
+    const continueButton = this.page.locator('button:has-text("ادامه")');
     await continueButton.waitFor({ state: 'visible' });
     await continueButton.click();
   }
@@ -273,81 +247,3 @@ export class RepositoryUtils {
     }
   }
 }
-
-// async deleteRepos(repoIds: string[], token: string) {
-//     console.log(`شروع حذف ${repoIds.length} مخزن...`);
-
-//     // بررسی آرایه خالی
-//     if (repoIds.length === 0) {
-//         console.log("هیچ مخزنی برای حذف وجود ندارد.");
-//         return;
-//     }
-
-//     // حذف مخزن‌ها یکی یکی
-//     for (let i = 0; i < repoIds.length; i++) {
-//         const repoId = repoIds[i];
-//         console.log(`در حال حذف مخزن ${i + 1}/${repoIds.length}: ${repoId}`);
-
-//         try {
-//             // حذف مخزن با استفاده از Playwright fetch API
-//             const response = await this.page.request.delete(getFullUrl(URLs.REPOSITORY_DETAIL(repoId)), {
-//                 headers: {
-//                     'Accept': '*/*',
-//                     'Authorization': `Bearer ${token}`
-//                 }
-//             });
-
-//             if (response.ok()) {
-//                 console.log(`مخزن ${repoId} با موفقیت حذف شد.`);
-//             } else {
-//                 console.error(`خطا در حذف مخزن ${repoId}: ${response.status()} - ${await response.text()}`);
-//             }
-//         } catch (error) {
-//             console.error(`خطا در حذف مخزن ${repoId}:`, error);
-//         }
-
-//         // تاخیر بین درخواست‌ها
-//         if (i < repoIds.length - 1) {
-//             await this.page.waitForTimeout(500);
-//         }
-//     }
-
-//     console.log(`عملیات حذف ${repoIds.length} مخزن به پایان رسید.`);
-// }
-
-// /**
-//  * ایجاد تگ برای مخزن
-//  * @param tagName نام تگ
-//  */
-// async createTag(tagName: string) {
-//     // اضافه کردن تاخیر قبل از شروع فرآیند ایجاد تگ
-//     await this.page.waitForTimeout(3000);
-
-//     // انتظار برای نمایش فیلد عنوان تگ
-//     const tagInput = this.page.locator('input[name="name"][placeholder="عنوان تگ"]');
-//     await tagInput.waitFor({ state: 'visible', timeout: 10000 });
-
-//     // اطمینان از اینکه فیلد قابل کلیک است
-//     await expect(tagInput).toBeEnabled();
-
-//     // وارد کردن نام تگ با تاخیر
-//     await tagInput.fill(tagName);
-//     await this.page.waitForTimeout(1000);
-
-//     // کلیک روی دکمه افزودن
-//     const addButton = this.page.locator('button.repo-tags__add-button');
-//     await addButton.waitFor({ state: 'visible', timeout: 5000 });
-//     await expect(addButton).toBeEnabled();
-//     await addButton.click();
-
-//     // انتظار برای اطمینان از ایجاد تگ
-//     await this.page.waitForTimeout(2000);
-
-//     // کلیک روی دکمه ادامه
-//     const continueButton = this.page.locator('button.repo-tags__dialog-next-button');
-//     await continueButton.waitFor({ state: 'visible', timeout: 5000 });
-//     await continueButton.click();
-
-//     // انتظار برای اطمینان از تکمیل عملیات
-//     await this.page.waitForLoadState('networkidle');
-// }

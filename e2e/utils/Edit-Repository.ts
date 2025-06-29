@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test';
+import { WaitUtils } from './wait-utils';
 
 /**
  * کلاس مدیریت ویرایش مخزن در سیستم
@@ -6,15 +7,17 @@ import { expect, Page } from '@playwright/test';
  */
 export class EditRepository {
   private page: Page;
+  private waitUtils: WaitUtils;
 
   constructor(page: Page) {
     this.page = page;
+    this.waitUtils = new WaitUtils(page);
   }
 
   /**
    * رفتن به صفحه داشبورد
    */
-  async goToDashboard() {
+  async goToDashboard(): Promise<void> {
     await this.page.goto('https://clasor-frontend.sandpod.ir/admin/dashboard');
     await this.page.waitForLoadState('networkidle');
 
@@ -24,7 +27,7 @@ export class EditRepository {
   /**
    * انتخاب اولین مخزن در لیست
    */
-  async selectFirstRepository() {
+  async selectFirstRepository(): Promise<void> {
     const firstRepo = this.page.locator('.repo-card').first();
     await firstRepo.click();
     await this.page.waitForLoadState('networkidle');
@@ -36,7 +39,7 @@ export class EditRepository {
   /**
    * کلیک روی دکمه منو
    */
-  async clickDropdownButton() {
+  async clickDropdownButton(): Promise<void> {
     const menuButton = this.page
       .locator('.repoInformationTab.repoActions button')
       .nth(0); // یا nth(1) بسته به موقعیت صحیح
@@ -55,13 +58,13 @@ export class EditRepository {
   /**
    * ویرایش نام مخزن
    */
-  async editRepositoryName(newName: string) {
+  async editRepositoryName(newName: string): Promise<void> {
     const nameInput = this.page.locator('input[name="name"]');
     await expect(nameInput).toBeVisible();
     await nameInput.fill(newName);
   }
 
-  async editRepositoryPic() {
+  async editRepositoryPic(): Promise<void> {
     const imageRadioButton = this.page.locator(
       '.repo-attach-default-image__radio'
     );
@@ -84,7 +87,7 @@ export class EditRepository {
   /**
    * ویرایش توضیحات مخزن
    */
-  async editRepositoryDescription(newDescription: string) {
+  async editRepositoryDescription(newDescription: string): Promise<void> {
     const descriptionInput = this.page.locator('textarea[name="description"]');
     await expect(descriptionInput).toBeVisible();
     await descriptionInput.fill(newDescription);
@@ -93,7 +96,7 @@ export class EditRepository {
   /**
    * ذخیره تغییرات
    */
-  async saveChanges() {
+  async saveChanges(): Promise<void> {
     const saveButton = this.page.locator('.dialog-footer__submit-button');
 
     // بررسی اینکه دکمه قابل مشاهده است
@@ -112,7 +115,7 @@ export class EditRepository {
   /**
    * انتظار برای نمایش پیام موفقیت‌آمیز
    */
-  async waitForSuccessToast() {
+  async waitForSuccessToast(): Promise<void> {
     try {
       // Try different possible toast selectors
       const toastSelectors = [
@@ -144,5 +147,17 @@ export class EditRepository {
       console.error('Error in waitForSuccessToast:', error);
       throw error;
     }
+  }
+
+  async editRepository(): Promise<void> {
+    await this.waitUtils.waitForPageLoad();
+
+    const menuButton = this.page.locator('.repository-menu button').first();
+    await this.waitUtils.stableClick(menuButton);
+
+    const editButton = this.page.locator('.edit-repository').first();
+    await this.waitUtils.stableClick(editButton);
+
+    // ... rest of the code with waitUtils ...
   }
 }

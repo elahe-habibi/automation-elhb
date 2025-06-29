@@ -14,7 +14,7 @@ export class EditDocument {
   /**
    * ویرایش سند
    */
-  async editDocument() {
+  async editDocument(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);
@@ -22,6 +22,7 @@ export class EditDocument {
     const menuButton = this.page.locator('.document-menu button').nth(0);
     await expect(menuButton).toBeVisible();
     await menuButton.click();
+    await this.page.waitForTimeout(2000); // تاخیر ۲ ثانیه‌ای
 
     const editButton = this.page.locator('button[role="menuitem"]').nth(0);
     await expect(editButton).toBeVisible();

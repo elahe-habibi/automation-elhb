@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/auth';
 import { RepositoryUtils } from '../../utils/Create-Repository';
-import { EditCategory } from '../../utils/Edit-Categoty';
 import { DocumentManager } from '../../utils/Create-Document';
 import { DirectAccessDocument } from '../../utils/DirectAccesstoDoc';
-import path from 'path';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;

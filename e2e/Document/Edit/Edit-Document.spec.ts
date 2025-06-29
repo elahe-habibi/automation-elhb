@@ -5,7 +5,6 @@ import { CategoryManager } from '../../utils/Create-Category';
 import { EditCategory } from '../../utils/Edit-Categoty';
 import { EditDocument } from 'e2e/utils/Edit-Document';
 import { DocumentManager } from '../../utils/Create-Document';
-import path from 'path';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;
@@ -41,12 +40,13 @@ test.describe('Repository Create and Share', () => {
 
     // کلیک روی دکمه ایجاد و انجام روند ایجاد سند
     await documentManager.clickCreateButton();
-
-    // const toastMessage = page.locator('.Toastify__toast-body');
-    // await expect(toastMessage).toBeVisible({ timeout: 5000 });
-    // await expect(toastMessage).toContainText('موفقیت', { timeout: 5000 });
+    await page.waitForTimeout(2000); // تاخیر ۲ ثانیه‌ای
 
     await DocumentUtils.editDocument();
+
+    const toastMessage = page.locator('.Toastify__toast-body');
+    await expect(toastMessage).toBeVisible({ timeout: 5000 });
+    await expect(toastMessage).toContainText('موفقیت', { timeout: 5000 });
 
     // اضافه کردن توقف در انتهای تست
     await page.pause();
