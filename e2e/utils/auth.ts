@@ -1,6 +1,6 @@
 import { Page, expect } from '@playwright/test';
 import { URLs, getFullUrl } from '../constants';
-import { WaitUtils } from './wait-utils';
+import { WaitUtils } from './waitutils';
 
 export class AuthUtils {
   private page: Page;
@@ -61,13 +61,18 @@ export class AuthUtils {
     // Wait for the page to load
     await this.page.waitForLoadState('domcontentloaded');
 
-    // Click on the "My Repositories" button using specific class selectors
-    const myRepositoriesButton = this.page.locator(
-      'button.align-middle.select-none.font-sans.font-bold.text-center.uppercase.text-xs.py-3.rounded-lg:has(.title_t3:has-text("مخزن‌های من"))'
-    );
-    await expect(myRepositoriesButton).toBeVisible();
-    await myRepositoriesButton.click();
-    // Wait for the page to load
+    const myReposButton = this.page.locator('a[href="/admin/myRepoList"] >> button');
+    await expect(myReposButton).toBeVisible();
+    await myReposButton.click();
+    
+    
+    // // Click on the "My Repositories" button using specific class selectors
+    // const myRepositoriesButton = this.page.locator(
+    //   'button.align-middle.select-none.font-sans.font-bold.text-center.uppercase.text-xs.py-3.rounded-lg:has(.title_t3:has-text("مخزن‌های من"))'
+    // );
+    // await expect(myRepositoriesButton).toBeVisible();
+    // await myRepositoriesButton.click();
+    // // Wait for the page to load
     await this.page.waitForLoadState('domcontentloaded');
   }
 
@@ -123,10 +128,14 @@ export class AuthUtils {
   }
 
   async logout(): Promise<void> {
-    // Click on profile button
-    const profileButton = this.page.getByRole('button', { name: /.*/ });
-    await profileButton.click();
-
+    // // Click on profile button
+    // const profileButton = this.page.getByRole('button', { name: /.*/ });
+    // await profileButton.click();
+    const profileBtn = this.page.locator('.userProfile');
+    if (await profileBtn.isVisible()) {
+      await profileBtn.click();
+    }
+    
     // Click the logout button
     const logoutButtonElement = this.page.locator(
       'button[role="menuitem"]:has-text("خروج از حساب")'
