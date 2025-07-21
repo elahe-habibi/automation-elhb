@@ -24,6 +24,9 @@ export class KeyRepository {
    * انتخاب اولین مخزن در لیست
    */
   async selectFirstRepository(): Promise<void> {
+    await this.page.waitForSelector('.repo-card', { timeout: 10000 });
+
+
     const firstRepo = this.page.locator('.repo-card').first();
     await firstRepo.click();
     await this.page.waitForLoadState('domcontentloaded');

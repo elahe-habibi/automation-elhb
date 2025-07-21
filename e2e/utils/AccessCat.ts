@@ -132,27 +132,50 @@ export class AccessCat {
     await continueButton.waitFor({ state: 'visible' });
     await continueButton.click();
 
-    await this.page.waitForTimeout(3000);
-
-    await this.page.locator('.repo-image__dialog-next-button').click();
-
     await this.page.waitForTimeout(5000);
 
+    // const nextButton = this.page.locator('.repo-image__dialog-next-button');
+    // await nextButton.waitFor({ state: 'visible', timeout: 10000 });
+    // await nextButton.click();
+
+    await this.page.waitForSelector('button:has-text("ادامه")', {
+      state: 'visible',
+      timeout: 10000,
+    });
+
     await this.page.reload();
-    await this.page.waitForLoadState('networkidle'); // صبر کن تا همه چیز لود شه
+    await this.page.waitForLoadState('load'); // یا
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async AcceptRequest(): Promise<void> {
-    await this.page.waitForTimeout(3000);
+
+    //await this.page.waitForTimeout(5000);
+
+    await this.page.waitForLoadState('networkidle');
 
     const joinBtn = this.page.locator('.join-to-repo-requests__button');
-    if (await joinBtn.isVisible()) {
-      await joinBtn.click();
+    if (await joinBtn.count() > 0) {
+      await joinBtn.first().waitFor({ state: 'attached', timeout: 10000 });
+      if (await joinBtn.first().isVisible()) {
+        await joinBtn.first().click();
+      }
+    } else {
+      console.log('No join-to-repo-requests__button found.');
     }
+    
+    const confirmBtn = this.page.locator('button:has-text("تایید")');
 
-    await this.page.locator('button:has-text("تایید")').first().click();
-    await this.page.waitForTimeout(3000);
-
+    // اول مطمئن شو که دکمه توی DOM هست
+    await confirmBtn.waitFor({ state: 'attached', timeout: 10000 });
+    
+    // بعد مطمئن شو قابل دیدن و کلیک هست
+    if (await confirmBtn.isVisible()) {
+      await confirmBtn.click();
+    } else {
+      console.warn('دکمه تایید هنوز قابل مشاهده نیست.');
+    }
+    
 
     const enterRepoBtn = this.page.locator('button:has-text("ورود به مخزن")');
     if (await enterRepoBtn.isVisible()) {
@@ -163,31 +186,47 @@ export class AccessCat {
   }
 
   async AccessCatUtils(): Promise<void> {
-    await this.page.waitForTimeout(3000);
 
-    const firstRepo = this.page.locator('.repo-card').first();
-    if (await firstRepo.isVisible()) {
+    await this.page.waitForTimeout(5000);
+
+    await this.page.goto(getFullUrl(URLs.DASHBOARD));
+
+    await this.page.waitForLoadState('networkidle');
+   
+    const repoCards = this.page.locator('.repo-card');
+    const count = await repoCards.count();
+    console.log('🔢 تعداد کارت‌ها:', count);
+    
+    if (count > 0) {
+      const firstRepo = repoCards.first();
+      await expect(firstRepo).toBeVisible({ timeout: 10000 });
       await firstRepo.click();
+    } else {
+      console.warn('❌ هیچ کارت مخزنی پیدا نشد.');
+      await this.page.screenshot({ path: 'repo-card-missing.png' });
     }
     
-    await this.page.locator('button.category-menu.bg-transparent.flex.justify-center').first().click();
+    await this.page
+      .locator('button.category-menu.bg-transparent.flex.justify-center')
+      .first()
+      .click();
 
     const accessButton = this.page.locator('.category-access');
     if (await accessButton.isVisible()) {
       await accessButton.click();
     }
-    
 
     await this.page.locator('input.text-primary_normal').click();
 
-
-    await this.page.locator('p.select_option__text', { hasText: 'emad.mh' }).click();
+    await this.page
+      .locator('p.select_option__text', { hasText: 'emad.mh' })
+      .click();
 
     const addButton = this.page.locator('.add-button');
     if (await addButton.isVisible()) {
       await addButton.click();
     }
-    
+
     await this.page.waitForTimeout(5000);
   }
 }

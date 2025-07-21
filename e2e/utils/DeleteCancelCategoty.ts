@@ -24,6 +24,10 @@ export class DeleteCategory {
     await menuButton.click();
     await this.page.waitForTimeout(2000);
 
+
+    await this.page.waitForLoadState('networkidle');
+
+
     const deleteCategoryButton = this.page.locator('.delete-category');
     // بررسی اینکه دکمه قابل مشاهده است
     await expect(deleteCategoryButton).toBeVisible();

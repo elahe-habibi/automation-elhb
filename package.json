@@ -6,7 +6,8 @@
     "format": "prettier --write \"**/*.{js,ts,json,md}\"",
     "lint": "eslint . --ext .ts,.js",
     "lint:fix": "eslint . --ext .ts,.js --fix",
-    "check": "npm run lint && npm run format"
+    "check": "npm run lint && npm run format",
+    "test": "playwright test --headless"
   },
   "keywords": [],
   "author": "",

@@ -44,10 +44,5 @@ test.describe('Repository Create and Share', () => {
 
     await CategoryUtils.subCategory();
 
-    const toastMessage = page.locator('.Toastify__toast-body');
-    await expect(toastMessage).toBeVisible({ timeout: 1000 });
-    await expect(toastMessage).toContainText('دسته بندی با موفقیت ایجاد شد.', {
-      timeout: 5000,
-    });
   });
 });

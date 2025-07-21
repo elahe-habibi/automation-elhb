@@ -113,6 +113,8 @@ export class DocumentCategory {
     // بررسی اینکه رکورد قابل مشاهده است
     await expect(firstCategoryRow).toBeVisible();
 
+    await firstCategoryRow.click({ force: true });
+
     // کلیک روی اولین رکورد
     await firstCategoryRow.click();
   }

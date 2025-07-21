@@ -164,7 +164,7 @@ export class AccessDoc {
 
   async AccessCatUtils(): Promise<void> {
     await this.page.waitForTimeout(3000);
-
+    await this.page.waitForSelector('.repo-card', { timeout: 10000 });
     const firstRepo = this.page.locator('.repo-card').first();
     if (await firstRepo.isVisible()) {
       await firstRepo.click();

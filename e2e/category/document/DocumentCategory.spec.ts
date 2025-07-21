@@ -46,7 +46,7 @@ test.describe('Repository Create and Share', () => {
 
     const toastMessage = page.locator('.Toastify__toast-body');
     await expect(toastMessage).toBeVisible({ timeout: 10000 });
-    await expect(toastMessage).toContainText('با موفقیت ایجاد شد', {
+    await expect(toastMessage).toContainText(' .نسخه مورد نظر با موفقیت ایجاد شد', {
       timeout: 5000,
     });
   });

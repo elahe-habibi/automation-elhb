@@ -241,6 +241,9 @@ export class RepositoryUtils {
     await this.waitUtils.waitForPageLoad();
     await this.page.waitForLoadState('networkidle');
 
+    await this.page.waitForSelector('.repo-card', { timeout: 10000 });
+
+
     // بررسی وجود کارت‌های مخزن
     const repoCards = this.page.locator('.repo-card');
     const count = await repoCards.count();

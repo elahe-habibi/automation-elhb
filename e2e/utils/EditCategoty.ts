@@ -19,6 +19,8 @@ export class EditCategory {
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);
 
+    await this.page.reload();
+
     const menuButton = this.page.locator('.category-menu button').nth(0);
     await expect(menuButton).toBeVisible();
     await menuButton.click();

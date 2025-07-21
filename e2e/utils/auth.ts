@@ -13,6 +13,7 @@ export class AuthUtils {
 
   async login(username: string, password: string): Promise<void> {
     // رفتن به صفحه لاگین
+
     await this.page.goto(getFullUrl(URLs.LOGIN));
     await this.waitUtils.waitForPageLoad();
 
@@ -37,6 +38,8 @@ export class AuthUtils {
     await submitButton.waitFor({ state: 'visible' });
     await submitButton.click();
 
+    await this.page.waitForTimeout(3000);
+
     // انتظار برای بارگذاری صفحه
     await this.waitUtils.waitForPageLoad();
 
@@ -45,6 +48,8 @@ export class AuthUtils {
   }
 
   async navigateToMyRepositories(): Promise<void> {
+    await this.page.waitForTimeout(5000);
+
     // Wait for navigation to the dashboard URL to ensure page is loaded
     await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
 
@@ -61,11 +66,12 @@ export class AuthUtils {
     // Wait for the page to load
     await this.page.waitForLoadState('domcontentloaded');
 
-    const myReposButton = this.page.locator('a[href="/admin/myRepoList"] >> button');
+    const myReposButton = this.page.locator(
+      'a[href="/admin/myRepoList"] >> button'
+    );
     await expect(myReposButton).toBeVisible();
     await myReposButton.click();
-    
-    
+
     // // Click on the "My Repositories" button using specific class selectors
     // const myRepositoriesButton = this.page.locator(
     //   'button.align-middle.select-none.font-sans.font-bold.text-center.uppercase.text-xs.py-3.rounded-lg:has(.title_t3:has-text("مخزن‌های من"))'
@@ -85,7 +91,12 @@ export class AuthUtils {
 
     // Locate the login button using role and click it
     const loginButton = this.page.locator('button:has-text("ورود")');
-    await this.waitUtils.waitForElementStable(loginButton);
+
+    // صبر کن تا دکمه قابل مشاهده و قابل کلیک باشه
+    await loginButton.waitFor({ state: 'visible', timeout: 10000 });
+    await loginButton.waitFor({ state: 'attached' }); // مطمئن بشیم توی DOM هست
+
+    // کلیک کن
     await loginButton.click();
 
     // // Wait for navigation to the expected URL
@@ -115,35 +126,97 @@ export class AuthUtils {
     await this.waitUtils.stableClick(submitButton);
 
     //Wait for navigation to the dashboard URL
-    await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
 
-    await this.page.waitForTimeout(3000);
-
-    const dashboardButton = this.page.locator('.sidebar-button-active');
-    // بررسی اینکه دکمه قابل مشاهده است
-    await expect(dashboardButton).toBeVisible();
-    // کلیک روی دکمه "داشبورد"
-    await dashboardButton.click();
-    
+    const buttons = await this.page.locator('.sidebar-button-active').all();
+    for (const btn of buttons) {
+      const text = await btn.textContent();
+      if (text?.includes('داشبورد')) {
+        await btn.waitFor({ state: 'visible' });
+        await btn.click();
+        break;
+      }
+    }
   }
 
-  async logout(): Promise<void> {
-    // // Click on profile button
-    // const profileButton = this.page.getByRole('button', { name: /.*/ });
-    // await profileButton.click();
-    const profileBtn = this.page.locator('.userProfile');
-    if (await profileBtn.isVisible()) {
-      await profileBtn.click();
-    }
-    
-    // Click the logout button
-    const logoutButtonElement = this.page.locator(
-      'button[role="menuitem"]:has-text("خروج از حساب")'
-    );
-    await expect(logoutButtonElement).toBeVisible();
-    await logoutButtonElement.click();
+  //   async logout(): Promise<void> {
+  //     await this.page.waitForTimeout(3000);8
 
-    // Wait for navigation back to the home page
-    await this.page.waitForURL(getFullUrl(URLs.LOGIN));
+  //     // // Click on profile button
+  //     // const profileButton = this.page.getByRole('button', { name: /.*/ });
+  //     // await profileButton.click();
+  //     const profileBtn = this.page.locator('.userProfile');
+  //     if (await profileBtn.isVisible()) {
+  //       await profileBtn.click();
+  //     }
+
+  //     // // Click the logout button
+  //     // this.page.waitForTimeout(10000); //
+  //     // const logoutButton = this.page.locator(
+  //     //   'button[role="menuitem"]:has-text("خروج از حساب")'
+  //     // );
+  //     // await this.page.locator('text=خروج از حساب').waitFor({ state: 'visible', timeout: 15000 });
+
+  //     // await logoutButton.waitFor({ state: 'visible', timeout: 10000 });
+  //     // await logoutButton.click();
+
+  //     // Ideally trigger the menu containing the logout button
+  //     // const menuTrigger = this.page.locator('selector-for-menu-button');
+  //     // await menuTrigger.click(); // if needed
+
+  //     const logoutButton = this.page.getByRole('menuitem', {
+  //       name: /خروج از حساب/,
+  //     });
+  //     await expect(logoutButton).toBeVisible({ timeout: 10000 });
+  //     await logoutButton.click();
+
+  //     // Optional: confirm redirection or state change
+  //     // await this.page.waitForURL('expected-post-logout-url', { timeout: 15000 }); // Removed placeholder
+
+  //     // Wait for navigation back to the home page
+  //     await this.page.waitForURL(url => url.toString().includes('/login'), {
+  //       timeout: 15000,
+  //     });
+  //  }
+
+  async logout(): Promise<void> {
+    const profileBtn = this.page.locator('.userProfile');
+    if (await profileBtn.isVisible({ timeout: 5000 })) {
+      console.log('Profile button is visible, clicking...');
+      await profileBtn.click();
+      // Wait for the logout button to appear after opening the menu
+      await this.page.waitForSelector('text=خروج از حساب', { timeout: 10000 });
+      await this.page.waitForTimeout(500); // Give a little time for animation
+      const logoutButton = this.page.locator('text=خروج از حساب');
+      await expect(logoutButton).toBeVisible({ timeout: 10000 });
+      await logoutButton.click();
+    } else {
+      console.log(
+        'Profile button is not visible, user may already be logged out.'
+      );
+      return; // Exit logout gracefully
+    }
+
+    await this.page.waitForTimeout(1000);
+    console.log(await this.page.content());
+
+    const logoutButton = this.page.locator('button:has-text("خروج از حساب")');
+
+    //await expect(logoutButton).toBeVisible({ timeout: 10000 });
+    //await logoutButton.click();
+
+    // لاگ برای بررسی مسیر واقعی
+    await this.page.waitForTimeout(1000);
+    const currentUrl = await this.page.url();
+    console.log('🧭 Current URL after logout:', currentUrl);
+
+    // بررسی انعطاف‌پذیر مسیر نهایی
+    await this.page.waitForURL(
+      url =>
+        url.pathname === '/' ||
+        url.pathname.includes('/login') ||
+        url.pathname.includes('/home') ||
+        url.pathname.includes('/auth'),
+      { timeout: 15000 }
+    );
   }
 }

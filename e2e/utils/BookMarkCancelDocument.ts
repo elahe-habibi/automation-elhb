@@ -17,7 +17,7 @@ export class BookMarkDocument {
   async bookmarkDocument(): Promise<void> {
     // Wait for the page to be fully loaded
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(5000);
 
     const menuButton = this.page.locator('.document-menu button').nth(0);
     await expect(menuButton).toBeVisible();

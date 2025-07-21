@@ -112,6 +112,8 @@ export class DocumentCategory {
     const firstCategoryRow = this.page.locator('.category-table-row').first();
     // بررسی اینکه رکورد قابل مشاهده است
     await expect(firstCategoryRow).toBeVisible();
+    
+    await firstCategoryRow.click({ force: true });
 
     // کلیک روی اولین رکورد
     await firstCategoryRow.click();
