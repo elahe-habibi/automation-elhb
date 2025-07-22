@@ -150,7 +150,7 @@ export class AccessCat {
 
   async AcceptRequest(): Promise<void> {
 
-    //await this.page.waitForTimeout(5000);
+    await this.page.waitForTimeout(8000);
 
     await this.page.waitForLoadState('networkidle');
 
@@ -163,11 +163,14 @@ export class AccessCat {
     } else {
       console.log('No join-to-repo-requests__button found.');
     }
-    
-    const confirmBtn = this.page.locator('button:has-text("تایید")');
 
+
+    await this.page.waitForTimeout(5000);
+
+    
+    const confirmBtn = this.page.locator('button:has-text("تایید")').first();
     // اول مطمئن شو که دکمه توی DOM هست
-    await confirmBtn.waitFor({ state: 'attached', timeout: 10000 });
+    await confirmBtn.waitFor({ state: 'attached', timeout: 20000 });
     
     // بعد مطمئن شو قابل دیدن و کلیک هست
     if (await confirmBtn.isVisible()) {
@@ -176,7 +179,6 @@ export class AccessCat {
       console.warn('دکمه تایید هنوز قابل مشاهده نیست.');
     }
     
-
     const enterRepoBtn = this.page.locator('button:has-text("ورود به مخزن")');
     if (await enterRepoBtn.isVisible()) {
       await enterRepoBtn.click();
