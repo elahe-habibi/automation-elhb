@@ -11,9 +11,15 @@ export class AuthUtils {
     this.waitUtils = new WaitUtils(page);
   }
 
-  async login(username: string, password: string): Promise<void> {
+  /**
+   * لاگین با امکان انجام اکشن بعد از ورود (پنل ادمین، خبرنامه یا هیچکدام)
+   */
+  async login(
+    username: string,
+    password: string,
+    afterLoginAction: 'admin' | 'newsletter' | null = null
+  ): Promise<void> {
     // رفتن به صفحه لاگین
-
     await this.page.goto(getFullUrl(URLs.LOGIN));
     await this.waitUtils.waitForPageLoad();
 
@@ -39,12 +45,24 @@ export class AuthUtils {
     await submitButton.click();
 
     await this.page.waitForTimeout(3000);
-
-    // انتظار برای بارگذاری صفحه
     await this.waitUtils.waitForPageLoad();
+    //await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
 
-    // اطمینان از ورود موفق
-    await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
+    // اکشن بعد از لاگین
+    if (afterLoginAction === 'admin') {
+      const adminPanelButton = this.page.locator('a[title="پنل ادمین"] button.bg-tertiary');
+      if (await adminPanelButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await adminPanelButton.click();
+        await this.page.waitForLoadState('domcontentloaded');
+      }
+    } else if (afterLoginAction === 'newsletter') {
+      const newsletterButton = this.page.locator('button.bg-tertiary').nth(1); // فرض: دومی خبرنامه است
+      if (await newsletterButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await newsletterButton.click();
+        await this.page.waitForLoadState('domcontentloaded');
+      }
+    }
+    // اگر هیچکدام نبود، فقط لاگین انجام می‌شود و وارد داشبورد می‌شود
   }
 
   async navigateToMyRepositories(): Promise<void> {
@@ -82,33 +100,22 @@ export class AuthUtils {
     await this.page.waitForLoadState('domcontentloaded');
   }
 
+  /**
+   * لاگین با حساب دیگر و امکان انجام اکشن بعد از ورود (پنل ادمین، خبرنامه یا هیچکدام)
+   */
   async loginWithAnotherAccount(
     username: string,
-    password: string
+    password: string,
+    afterLoginAction: 'admin' | 'newsletter' | null = null
   ): Promise<void> {
     // Navigate to the website
     await this.page.goto(getFullUrl(URLs.LOGIN));
 
     // Locate the login button using role and click it
     const loginButton = this.page.locator('button:has-text("ورود")');
-
-    // صبر کن تا دکمه قابل مشاهده و قابل کلیک باشه
     await loginButton.waitFor({ state: 'visible', timeout: 10000 });
-    await loginButton.waitFor({ state: 'attached' }); // مطمئن بشیم توی DOM هست
-
-    // کلیک کن
+    await loginButton.waitFor({ state: 'attached' });
     await loginButton.click();
-
-    // // Wait for navigation to the expected URL
-    // await this.page.waitForURL(
-    //   url => url.toString().includes('sso.sandpod.ir'),
-    //   {
-    //     timeout: 30000,
-    //   }
-    // );
-
-    // // Wait for the page to fully load
-    // await this.page.waitForLoadState('domcontentloaded');
 
     // Locate and click the "ورود با حساب دیگر" button
     const switchAccountButton = this.page.locator('a#authSelAccBtn');
@@ -125,17 +132,25 @@ export class AuthUtils {
     const submitButton = this.page.locator('#authLoginBtn');
     await this.waitUtils.stableClick(submitButton);
 
-    //Wait for navigation to the dashboard URL
+    // صبر برای لود کامل صفحه
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForTimeout(2000);
 
-    const buttons = await this.page.locator('.sidebar-button-active').all();
-    for (const btn of buttons) {
-      const text = await btn.textContent();
-      if (text?.includes('داشبورد')) {
-        await btn.waitFor({ state: 'visible' });
-        await btn.click();
-        break;
+    // اکشن بعد از لاگین
+    if (afterLoginAction === 'admin') {
+      const adminPanelButton = this.page.locator('button.bg-tertiary').nth(0); // انتخاب سومین دکمه
+      if (await adminPanelButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await adminPanelButton.click();
+        await this.page.waitForLoadState('domcontentloaded');
+      }
+    } else if (afterLoginAction === 'newsletter') {
+      const newsletterButton = this.page.locator('button.bg-tertiary').nth(1); // فرض: دومی خبرنامه است
+      if (await newsletterButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await newsletterButton.click();
+        await this.page.waitForLoadState('domcontentloaded');
       }
     }
+    // اگر هیچکدام نبود، فقط لاگین انجام می‌شود و وارد داشبورد می‌شود
   }
 
   //   async logout(): Promise<void> {
@@ -213,6 +228,7 @@ export class AuthUtils {
     await this.page.waitForURL(
       url =>
         url.pathname === '/' ||
+      
         url.pathname.includes('/login') ||
         url.pathname.includes('/home') ||
         url.pathname.includes('/auth'),

@@ -3,8 +3,6 @@ import { AuthUtils } from '../../utils/auth';
 import { AccessCat } from '../../utils/AccessCat';
 import { CategoryManager } from '../../utils/CreateCategory';
 import { EditCategory } from '../../utils/EditCategoty';
-
-
 import path from 'path';
 
 test.describe('Repository Create and Share', () => {
@@ -16,7 +14,7 @@ test.describe('Repository Create and Share', () => {
     authUtils = new AuthUtils(page);
     accessCat = new AccessCat(page);
     // لاگین قبل از هر تست
-    await authUtils.login('eli69', 'HQ[>684ngg');
+    await authUtils.login('eli69','HQ[>684ngg','admin');
     await authUtils.navigateToMyRepositories();
   });
 
@@ -33,8 +31,8 @@ test.describe('Repository Create and Share', () => {
     await accessCat.shareRepository('emad.mh');
 
     await authUtils.logout();
-    // لاگین قبل از هر تست
-    await authUtils.loginWithAnotherAccount('emad.mh', 'Em@d8970211');
+    // لاگین با حساب دیگر و بررسی شرطی دکمه پنل ادمین
+    await authUtils.loginWithAnotherAccountAndConditionalAdminPanel('emad.mh', 'Em@d8970211');
 
     await accessCat.AcceptRequest();       /**
      * تست‌های مربوط به ایجاد دسته‌بندی در سیستم
@@ -54,7 +52,7 @@ test.describe('Repository Create and Share', () => {
   
     await authUtils.logout();
 
-    await authUtils.loginWithAnotherAccount('eli69', 'HQ[>684ngg');
+    await authUtils.loginWithAnotherAccountAndConditionalAdminPanel('eli69', 'HQ[>684ngg');
 
     await accessCat.AccessCatUtils();
   });

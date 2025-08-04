@@ -8,6 +8,6 @@ test('example test using centralized URLs', async ({ page }) => {
   // Navigate to dashboard
   await page.goto(getFullUrl(URLs.DASHBOARD));
 
-  // Navigate to profile
-  await page.goto(getFullUrl(URLs.PROFILE));
+  // Navigate to repository management
+  await page.goto(getFullUrl(URLs.REPOSITORY_MANAGEMENT));
 });
