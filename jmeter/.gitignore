@@ -1,0 +1,22 @@
+# JMeter runtime files
+*.jtl
+*.jtl.gz
+*.log
+result*
+reports/
+report/
+bin/*.log
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Local secrets (do not commit real secrets)
+secrets.properties
+
+

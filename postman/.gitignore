@@ -1,0 +1,14 @@
+# Exclude original Postman exports (keep only sanitized copies)
+*.postman_collection.json
+*.postman_environment.json
+!*.sanitized.json
+
+# Newman reports and artifacts
+newman-report/
+
+# PowerShell history/temp
+*.ps1.save
+*.tmp
+
+# Node/npm caches if any
+node_modules/
