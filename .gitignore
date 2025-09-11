@@ -1,8 +1,0 @@
-
-# Playwright
-playwright.config.ts
-playwright.config.js
-playwright-test/
-playwright-test/playwright-report/
-playwright-test/test-results/
-
