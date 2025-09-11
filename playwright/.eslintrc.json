@@ -1,0 +1,129 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:playwright/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint", "playwright", "prettier"],
+  "rules": {
+    // Basic ESLint rules - STRICT SPACING AND FORMATTING
+    "no-console": ["warn", { "allow": ["warn", "error", "info", "log"] }],
+    "no-debugger": "warn",
+    "no-unused-vars": "off", // Using TypeScript version instead
+    "no-undef": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+
+    // STRICT SPACING RULES
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1 }],
+    "no-trailing-spaces": "error",
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "eol-last": "error",
+
+    // STRICT QUOTES AND COMMAS
+    "quotes": [
+      "error",
+      "single",
+      { "avoidEscape": true, "allowTemplateLiterals": true }
+    ],
+    "comma-dangle": ["error", "always-multiline"],
+    "comma-spacing": ["error", { "before": false, "after": true }],
+
+    // STRICT SEMICOLON
+    "semi": ["error", "always"],
+    "semi-spacing": ["error", { "before": false, "after": true }],
+
+    // TypeScript specific rules
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      {
+        "allowExpressions": true,
+        "allowTypedFunctionExpressions": true,
+        "allowHigherOrderFunctions": true,
+        "allowDirectConstAssertionInArrowFunctions": true,
+        "allowConciseArrowFunctionExpressionsStartingWithVoid": true
+      }
+    ],
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "warn",
+    "@typescript-eslint/prefer-optional-chain": "warn",
+
+    // Playwright specific rules
+    "playwright/no-force-option": "error",
+    "playwright/no-element-handle": "error",
+    "playwright/no-eval": "error",
+    "playwright/no-wait-for-timeout": "error",
+    "playwright/no-networkidle": "error",
+    "playwright/no-wait-for-selector": "error",
+    "playwright/no-page-pause": "error",
+    "playwright/expect-expect": [
+      "error",
+      { "assertFunctionNames": ["expect", "assert"] }
+    ],
+    "playwright/no-skipped-test": "error",
+    "playwright/no-focused-test": "error",
+    "playwright/no-conditional-in-test": "error",
+
+    // Prettier integration
+    "prettier/prettier": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.spec.ts", "**/*.test.ts"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "playwright/no-wait-for-timeout": "off",
+        "playwright/no-networkidle": "off",
+        "playwright/no-wait-for-selector": "off",
+        "playwright/expect-expect": "warn",
+        "playwright/no-conditional-in-test": "off"
+      }
+    },
+    {
+      "files": ["e2e/utils/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "error",
+        "playwright/no-wait-for-timeout": ["warn", { "maxTimeout": 5000 }],
+        "playwright/no-networkidle": "warn",
+        "playwright/no-wait-for-selector": "warn",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern": "^_"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.js"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    }
+  ]
+}
