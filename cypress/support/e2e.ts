@@ -1,6 +1,0 @@
-import './commands/commands'
-import './commands/login'
-import './commands/logOut'
-import './commands/creatRepo'
-import './commands/addUser'
-import './commands/clickNotice'
