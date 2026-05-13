@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/core/auth';
-import { RepositoryUtils } from '../../utils/repository/CreateRepository';
-import { CategoryManager } from '../../utils/category/CreateCategory';
+import { RepositoryUtils } from '../../utils/repository/crudrepo/CreateRepository';
+import { CategoryManager } from '../../utils/category/create/CreateCategory';
 import { DocumentCategory } from '../../utils/document/DocumentCategoty';
 
 test.describe('Repository Create and Share', () => {
@@ -27,6 +27,8 @@ test.describe('Repository Create and Share', () => {
       true,
     );
 
+    await page.waitForTimeout(10000);
+
     /**
      * تست‌های مربوط به ایجاد دسته‌بندی در سیستم
      */
@@ -44,13 +46,7 @@ test.describe('Repository Create and Share', () => {
 
     await CategoryUtils.documentCategory();
 
-    const toastMessage = page.locator('.Toastify__toast-body');
-    await expect(toastMessage).toBeVisible({ timeout: 10000 });
-    await expect(toastMessage).toContainText(
-      ' .نسخه مورد نظر با موفقیت ایجاد شد',
-      {
-        timeout: 5000,
-      },
-    );
+    await CategoryUtils.closePage();  
+
   });
 });

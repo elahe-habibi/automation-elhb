@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/core/auth';
-import { RepositoryUtils } from '../../utils/repository/CreateRepository';
-import { EditRepository } from '../../utils/repository/EditRepository';
+import { RepositoryUtils } from '../../utils/repository/crudrepo/CreateRepository';
+import { EditRepository } from '../../utils/repository/crudrepo/EditRepository';
 import { FilemanageRepository } from '../../utils/file-management/FilemanagmentRepo';
 import path from 'path';
 

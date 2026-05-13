@@ -1,0 +1,74 @@
+stages:
+#  - prerequisites
+  - build_sandbox
+  - push_sandbox
+  - update_sandbox
+
+#Create npmrc file:
+#  stage: prerequisites
+#  tags:
+#    - ${SAND_RUNNER_TAG}
+#  script:
+#    - echo "unsafe-perm=true" > .npmrc
+#    - echo "registry = http:$SAND_NPM_PROXY" >> .npmrc
+#    - echo "$SAND_NPM_PROXY:_authToken = $SAND_NPM_TOKEN" >> .npmrc
+#    - echo "always-auth=true" >> .npmrc
+#  artifacts:
+#    paths:
+#      - .npmrc
+
+Build Docker Image:
+  stage: build_sandbox
+  tags:
+    - ${SAND_RUNNER_TAG}
+  before_script:
+    - curl -u $SAND_NEXUS_USER:$SAND_NEXUS_PASS  $SAND_RAW_REPO/$SAND_ENV_PATH  > .env
+    - ls -la
+  script:
+   # - sed -i 's+https:\/\/registry\.npmjs\.org+http:\/\/nrs.sandpod.ir\/repository\/npm-proxy+g' package-lock.json 
+    #-  sed -i 's+https:\/\/registry\.npmjs\.org+http:\/\/nrp.devpod.ir:8081/repository/nodejs-proxy+g' package-lock.json
+    - docker build -t $SAND_REGISTRY/$SAND_BUSINESS/$PROJECT_NAME:$IMAGE_TAG -f Dockerfile . --no-cache
+
+
+#  needs: ['Create npmrc file']
+#  dependencies:
+#    - Create npmrc file
+  retry: 2
+#---------------------------------------------------
+
+Transfer Docker Image:
+  stage: push_sandbox
+  tags:
+    - ${SAND_RUNNER_TAG}
+  script:
+    - docker login $SAND_REGISTRY -u $SAND_HARBOR_USER  -p $SAND_HARBOR_PASS
+    - docker push $SAND_REGISTRY/$SAND_BUSINESS/$PROJECT_NAME:$IMAGE_TAG
+    - docker rmi  $SAND_REGISTRY/$SAND_BUSINESS/$PROJECT_NAME:$IMAGE_TAG
+    - docker image prune -f --filter label=stage=vendor
+  needs: ['Build Docker Image']
+  dependencies:
+    - Build Docker Image
+  retry: 2
+
+
+###############################CD###############################
+
+Update App Image:
+  variables:
+    GIT_STRATEGY: none
+  stage: update_sandbox
+  tags:
+    - ${SAND_k8s_RUNNER_TAG}
+  before_script:
+    - kubectl config set-cluster kubernetes --server="${SAND_GENERAL_K8S_ADDRESS}"
+    - kubectl config set clusters.kubernetes.certificate-authority-data ${SAND_GENERAL_K8S_CRT}
+    - kubectl config set-credentials "${SAND_GENERAL_K8S_USER}" --token="${SAND_AUTO_TOKEN}"
+    - kubectl config set-context "${SAND_GENERAL_K8S_USER}"@kubernetes --cluster=kubernetes --user="${SAND_GENERAL_K8S_USER}"
+    - kubectl config use-context "${SAND_GENERAL_K8S_USER}"@kubernetes
+  script:
+    - kubectl -n "${SAND_NAMESPACE}"  rollout restart deployment "${SAND_DEPLOYMENT}" 
+  needs: ["Transfer Docker Image"]
+  dependencies:
+    - Transfer Docker Image
+
+

@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/core/auth';
-import { RepositoryUtils } from '../../utils/repository/CreateRepository';
-import { EditCategory } from '../../utils/category/EditCategoty';
-import { DocumentManager } from '../../utils/document/CreateDocument';
+import { RepositoryUtils } from '../../utils/repository/crudrepo/CreateRepository';
+import { EditCategory } from '../../utils/category/edit/EditCategoty';
+import { DocumentManager } from '../../utils/document/create/CreateDocument';
 import { listversionDocument } from '../../utils/document/VersionListDoc';
-import { PubliclastversionDocument } from '../../utils/document/PublicLastversion';
+import { PubliclastversionDocument } from '../../utils/document/publicdoc/PublicLastversion';
 
 test.describe('Repository Create and Share', () => {
   let authUtils: AuthUtils;

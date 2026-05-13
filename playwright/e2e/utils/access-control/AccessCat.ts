@@ -38,7 +38,6 @@ export class AccessCat {
       try {
         // پر کردن نام مخزن
         await this.page.locator('#repo-name').fill(name);
-
         // پر کردن توضیحات
         await this.page
           .locator('textarea[name="description"]')
@@ -185,6 +184,7 @@ export class AccessCat {
   }
 
   async AccessCatUtils(): Promise<void> {
+
     await this.page.waitForTimeout(5000);
 
     await this.page.goto(getFullUrl(URLs.DASHBOARD));
@@ -204,14 +204,12 @@ export class AccessCat {
       await this.page.screenshot({ path: 'repo-card-missing.png' });
     }
 
-    // await this.page
-    //   .locator('button.category-menu.bg-transparent.flex.justify-center')
-    //   .first()
-    //   .click();
+    
+    const menuButton = this.page.locator('.category-menu button').nth(0);
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
 
-    const categoryButton = this.page.locator('button.category-menu.bg-transparent.flex.justify-center').first();
-    await categoryButton.waitFor({ state: 'visible' });
-    await categoryButton.click();
+    await this.page.waitForTimeout(2000);
     
     const accessButton = this.page.locator('.category-access');
     if (await accessButton.isVisible()) {

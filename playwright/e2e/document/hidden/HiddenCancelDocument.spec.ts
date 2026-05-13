@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/core/auth';
-import { RepositoryUtils } from '../../utils/repository/CreateRepository';
-import { DocumentManager } from '../../utils/document/CreateDocument';
+import { RepositoryUtils } from '../../utils/repository/crudrepo/CreateRepository';
+import { DocumentManager } from '../../utils/document/create/CreateDocument';
 import { HiddenDocument } from '../../utils/document/HiddenCancelDocument';
 
 test.describe('Repository Create and Share', () => {

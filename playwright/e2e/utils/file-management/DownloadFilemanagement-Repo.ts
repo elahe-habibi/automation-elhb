@@ -60,10 +60,8 @@ export class FilemanageRepository {
       // انتظار برای اطمینان از لود شدن دیالوگ آپلود
       await this.page.waitForTimeout(20000);
 
-      // آپلود تصویر
       const fileInput = this.page.locator('#file-upload');
-      const absolutePath = path.resolve(__dirname, '../../assets/picture.jpg');
-      await fileInput.setInputFiles(absolutePath);
+      await fileInput.setInputFiles(imagePath);
 
       // انتظار برای اطمینان از تکمیل آپلود
       await this.page.waitForTimeout(3000);
@@ -86,6 +84,8 @@ export class FilemanageRepository {
       await firstRecord.waitFor({ state: 'visible', timeout: 10000 });
       await expect(firstRecord).toBeEnabled();
       await firstRecord.click();
+
+      await this.page.getByRole('dialog').locator('button.close-button').click();
 
       // کلیک روی دکمه افزودن
       const addButton = this.page.locator('.dialog-footer__submit-button');

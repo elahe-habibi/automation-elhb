@@ -1,8 +1,8 @@
 // File management utilities index file
-export { DeleteFilemanagmentRepo } from './DeleteFilemanagmentRepo';
-export { DeleteCancelFilemanagmentRepo } from './DeleteCancelFilemanagment-Repo';
+export { DeleteFilemanagmentRepo } from './delete/DeleteFilemanagmentRepo';
+export { DeleteCancelFilemanagmentRepo } from './delete/DeleteCancelFilemanagment-Repo';
 export { DownloadFilemanagementRepo } from './DownloadFilemanagement-Repo';
-export { EditCancelFilemanagmentRepo } from './EditCancelFilemanagment-Repo';
-export { EditFilemanagmentRepo } from './EditFilemanagmentRepo';
+export { EditCancelFilemanagmentRepo } from './edit/EditCancelFilemanagment-Repo';
+export { EditFilemanagmentRepo } from './edit/EditFilemanagmentRepo';
 export { FilemanagmentCancelRepo } from './FilemanagmentCancel-Repo';
 export { FilemanagmentRepo } from './FilemanagmentRepo';

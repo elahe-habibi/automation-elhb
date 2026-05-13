@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { AuthUtils } from '../../../utils/core/auth';
-import { RepositoryUtils } from '../../../utils/repository/CreateRepository';
+import { RepositoryUtils } from '../../../utils/repository/crudrepo/CreateRepository';
 import path from 'path';
 
 test.describe('Repository Create and Share', () => {

@@ -109,14 +109,23 @@ export class DocumentCategory {
     // انتظار برای تکمیل عملیات
     await this.waitUtils.waitForPageLoad();
 
+    const toastMessage = this.page.locator('.Toastify__toast-body');
+    await expect(toastMessage).toBeVisible({ timeout: 20000 });
+    await expect(toastMessage).toContainText(
+      'نسخه مورد نظر با موفقیت ایجاد گردید.',
+      {
+        timeout: 5000,
+      },
+    );
+
+
     const firstCategoryRow = this.page.locator('.category-table-row').first();
     // بررسی اینکه رکورد قابل مشاهده است
     await expect(firstCategoryRow).toBeVisible();
-
     await firstCategoryRow.click({ force: true });
-
     // کلیک روی اولین رکورد
     await firstCategoryRow.click();
+    
   }
 
   /**
@@ -128,12 +137,8 @@ export class DocumentCategory {
     return await documentForm.isVisible();
   }
 
-  /**
-   * انتظار برای نمایش پیام موفقیت‌آمیز
-   */
-  // async waitForSuccessToast(): Promise<void> {
-  //   const toastMessage = this.page.locator('.Toastify__toast-body');
-  //   await expect(toastMessage).toBeVisible({ timeout: 10000 });
-  //   await expect(toastMessage).toContainText('نسخه مورد نظر با موفقیت ایجاد گردید.', { timeout: 5000 });
-  // }
+  async closePage(): Promise<void> {
+    await this.page.close();
+  }
 }
+

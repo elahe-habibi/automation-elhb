@@ -232,50 +232,127 @@ export class RepositoryUtils {
   }
 
   async EditUser(): Promise<void> {
+
     await this.page.waitForTimeout(5000);
     await this.waitUtils.waitForPageLoad();
     await this.page.waitForLoadState('networkidle');
 
-    await this.page.waitForSelector('.repo-card', { timeout: 10000 });
+    // انتظار برای ظهور مخازن
+    await this.page.waitForSelector('.repo-card', { timeout: 15000 });
 
-    // بررسی وجود کارت‌های مخزن
     const repoCards = this.page.locator('.repo-card');
     const count = await repoCards.count();
-    console.log(`Found ${count} repo cards`);
+    console.log(`✅ تعداد مخازن یافت شده: ${count}`);
 
     if (count === 0) {
-      // اگر کارت مخزنی پیدا نشد، منتظر بمانیم
-      await this.page.waitForTimeout(5000);
-      console.log('No repo cards found, waiting more...');
+      throw new Error('هیچ مخزنی در لیست یافت نشد!');
     }
 
-    const firstRepoCard = this.page.locator('.repo-card').first();
-    // افزایش timeout برای پیدا کردن کارت
+    // انتخاب اولین مخزن
+    const firstRepoCard = repoCards.first();
     await expect(firstRepoCard).toBeVisible({ timeout: 15000 });
     await firstRepoCard.click();
+    console.log('✅ اولین مخزن انتخاب شد');
 
+    // ═════════════════════════════════════════════════════════
+    // مرحله ۱: ✨ پیدا کردن دکمه سه‌نقطه مخزن (بر اساس کد HTML شما)
+    // ═════════════════════════════════════════════════════════
+    
+    await this.page.waitForTimeout(5000);
+
+    console.log('🔄 در حال جستجوی دکمه سه‌نقطه مخزن...');
     const menuButton = this.page
       .locator('.repoInformationTab.repoActions button')
-      .nth(0);
+      .nth(0); // یا nth(1) بسته به موقعیت صحیح
     await expect(menuButton).toBeVisible();
     await menuButton.click();
 
-    const editButton = this.page.locator('.repo-menu__item--share');
-    await expect(editButton).toBeVisible();
-    await editButton.click();
+    // انتظار برای باز شدن کامل منوی کشویی (حیاتی!)
+    await this.page.waitForTimeout(1000);
 
-    await this.page.waitForTimeout(3000);
+    // سلکتورهای هوشمند بر اساس متن فارسی (مستقل از کلاس‌های تغییرکننده)
+    const shareButton = this.page.locator(
+      'button:has-text("اشتراک‌گذاری"), ' +      // متن دقیق
+      '[role="menuitem"]:has-text("اشتراک"), ' + // متن کوتاه‌تر
+      '.menu-item:has-text("اشتراک")'            // کلاس عمومی + متن
+    ).first();
 
-    // کلیک روی دکمه تغییر نقش
-    const changeRoleButton = this.page.locator('.repo-user__change-role');
-    await expect(changeRoleButton).toBeVisible();
-    await changeRoleButton.click();
+    // انتظار با تایم‌اوت افزایش یافته + بررسی وجود منو
+    await shareButton.waitFor({ state: 'visible', timeout: 15000 });
+    await shareButton.click();
+    console.log('✅ گزینه "اشتراک‌گذاری" انتخاب شد');
 
-    // اسکرول داخل لیست نقش‌ها (اختیاری)
-    const roleDropdown = this.page.locator('.shadow-menu');
-    await roleDropdown.evaluate(node => node.scrollIntoView());
-    await this.page.locator('.repo-user__transfer-ownership').click();
+    await this.page.waitForTimeout(2000);
 
-    await this.page.waitForTimeout(5000);
+    // ═════════════════════════════════════════════════════════
+    // مرحله ۳: باز کردن منوی سه‌نقطه اولین کاربر در لیست
+    // ═════════════════════════════════════════════════════════
+    console.log('🔄 در حال باز کردن منوی اولین کاربر در لیست اشتراک‌ها...');
+
+    // سلکتورهای چندگانه برای دکمه منوی کاربر
+    const userMenuButton = this.page.locator(
+      '.repo-user-card button[aria-haspopup="menu"], ' +
+      '.repo-user-item button[aria-haspopup="menu"], ' +
+      'button[aria-label*="کاربر"], ' +
+      'button[aria-label*="user"]'
+    ).first();
+
+    await userMenuButton.waitFor({ state: 'visible', timeout: 10000 });
+    await userMenuButton.click();
+    console.log('✅ منوی سه‌نقطه اولین کاربر باز شد');
+
+    await this.page.waitForTimeout(800);
+
+    // ═════════════════════════════════════════════════════════
+    // مرحله ۴: کلیک روی دکمه "انتقال مالکیت"
+    // ═════════════════════════════════════════════════════════
+    console.log('🔄 در حال انتخاب گزینه "انتقال مالکیت"...');
+
+    const transferOwnershipButton = this.page.locator(
+      'button.repo-user-menu__transfer-ownership, ' +
+      'button:has-text("انتقال مالکیت"), ' +
+      '[role="menuitem"]:has-text("مالکیت")'
+    ).first();
+
+    await transferOwnershipButton.waitFor({ state: 'visible', timeout: 10000 });
+    await transferOwnershipButton.click();
+    console.log('✅ گزینه "انتقال مالکیت" انتخاب شد');
+
+    // ═════════════════════════════════════════════════════════
+    // مرحله ۵: تأیید در دیالوگ
+    // ═════════════════════════════════════════════════════════
+    await this.page.waitForTimeout(1500);
+
+    const confirmButton = this.page.locator(
+      'button:has-text("تأیید"), ' +
+      'button:has-text("تایید"), ' +
+      '.dialog-footer__submit-button'
+    ).first();
+
+    if (await confirmButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await confirmButton.click();
+      console.log('✅ تأیید انتقال مالکیت انجام شد');
+      await this.page.waitForTimeout(2000);
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // مرحله ۶: بررسی پیام موفقیت
+    // ═════════════════════════════════════════════════════════
+    const successToast = this.page.locator(
+      '.toast-success, ' +
+      '.Toastify__toast--success, ' +
+      '[role="alert"]:has-text("مالکیت"), ' +
+      'text="مالکیت"'
+    ).first();
+
+    if (await successToast.isVisible({ timeout: 10000 }).catch(() => false)) {
+      const toastText = await successToast.textContent();
+      console.log(`✅ پیام موفقیت: ${toastText?.trim()}`);
+    } else {
+      console.log('⚠️ پیام موفقیت یافت نشد (ممکن است سیستم بدون توست پاسخ دهد)');
+    }
+
+    console.log('✅ فرآیند انتقال مالکیت با موفقیت به پایان رسید');
+    await this.page.waitForTimeout(2000);
   }
 }

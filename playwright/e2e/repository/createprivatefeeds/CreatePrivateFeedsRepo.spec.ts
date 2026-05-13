@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/core/auth';
-import { RepositoryUtils } from '../../utils/repository/CreateRepository';
-import { CreatePrivateFeedsRepository } from '../../utils/repository/CreatePrivateFeedsRepository';
-import { EditRepository } from '../../utils/repository/EditRepository';
+import { RepositoryUtils } from '../../utils/repository/crudrepo/CreateRepository';
+import { CreatePrivateFeedsRepository } from '../../utils/repository/crudrepo/CreatePrivateFeedsRepository';
+import { EditRepository } from '../../utils/repository/crudrepo/EditRepository';
 
 test.describe('Repository Edit Tests', () => {
   let authUtils: AuthUtils;

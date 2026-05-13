@@ -70,5 +70,12 @@ export class SubCategory {
     await firstRow.click();
 
     await this.page.waitForTimeout(5000);
+
+    // const toastMessage = this.page.locator('.Toastify__toast-body');
+    // await expect(toastMessage).toBeVisible({ timeout: 1000 });
+    // await expect(toastMessage).toContainText('دسته بندی با موفقیت ایجاد شد.', {
+    //   timeout: 5000,
+    // });
+
   }
 }

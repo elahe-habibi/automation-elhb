@@ -19,6 +19,26 @@ export class AuthUtils {
     password: string,
     afterLoginAction: 'admin' | 'newsletter' | null = null,
   ): Promise<void> {
+    // مخفی کردن webdriver property برای جلوگیری از bot detection
+    await this.page.addInitScript(() => {
+      // حذف webdriver property
+      Object.defineProperty(navigator, 'webdriver', {
+        get: () => false,
+      });
+      
+      // اضافه کردن chrome property
+      (window as any).chrome = {
+        runtime: {},
+      };
+      
+      // اصلاح permissions
+      const originalQuery = (window.navigator as any).permissions.query;
+      (window.navigator as any).permissions.query = (parameters: any) =>
+        parameters.name === 'notifications'
+          ? Promise.resolve({ state: Notification.permission } as PermissionStatus)
+          : originalQuery(parameters);
+    });
+
     // رفتن به صفحه لاگین
     await this.page.goto(getFullUrl(URLs.LOGIN));
     await this.waitUtils.waitForPageLoad();
@@ -27,8 +47,27 @@ export class AuthUtils {
     const loginButton = this.page.getByRole('button', { name: 'ورود' });
     await loginButton.click();
 
-    // انتظار برای بارگذاری فرم
-    await this.page.waitForSelector('#authIdentity-inp', { state: 'visible' });
+    // منتظر می‌مانیم تا navigation به صفحه SSO انجام شود
+    await this.page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+    await this.page.waitForTimeout(2000); // تاخیر اضافی برای بارگذاری کامل صفحه SSO
+
+    // انتظار برای بارگذاری فرم - با timeout بیشتر و error handling بهتر
+    try {
+      await this.page.waitForSelector('#authIdentity-inp', { 
+        state: 'visible',
+        timeout: 30000 
+      });
+    } catch (error) {
+      // اگر فرم پیدا نشد، بررسی می‌کنیم که آیا صفحه خطا است
+      const errorText = await this.page.locator('text=دسترسی امکانپذیر نمی باشد').isVisible().catch(() => false);
+      if (errorText) {
+        throw new Error('SSO صفحه خطای "دسترسی امکانپذیر نمی باشد" را نشان می‌دهد. ممکن است bot detection فعال باشد.');
+      }
+      // بررسی URL فعلی برای debug
+      const currentUrl = this.page.url();
+      console.error(`❌ فرم لاگین پیدا نشد. URL فعلی: ${currentUrl}`);
+      throw error;
+    }
 
     // پر کردن فرم با سلکتورهای دقیق
     const usernameInput = this.page.locator('#authIdentity-inp');
@@ -72,13 +111,15 @@ export class AuthUtils {
   }
 
   async navigateToMyRepositories(): Promise<void> {
-    await this.page.waitForTimeout(5000);
 
+    await this.page.waitForTimeout(8000);
     // Wait for navigation to the dashboard URL to ensure page is loaded
     await this.page.waitForURL(getFullUrl(URLs.DASHBOARD));
 
     // Wait for the page to fully load
     await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForTimeout(8000);
+
 
     // Click on the "Repository Management" link (مدیریت مخزن‌ها)
     const repoManagementButton = this.page.locator(
@@ -96,13 +137,6 @@ export class AuthUtils {
     await expect(myReposButton).toBeVisible();
     await myReposButton.click();
 
-    // // Click on the "My Repositories" button using specific class selectors
-    // const myRepositoriesButton = this.page.locator(
-    //   'button.align-middle.select-none.font-sans.font-bold.text-center.uppercase.text-xs.py-3.rounded-lg:has(.title_t3:has-text("مخزن‌های من"))'
-    // );
-    // await expect(myRepositoriesButton).toBeVisible();
-    // await myRepositoriesButton.click();
-    // // Wait for the page to load
     await this.page.waitForLoadState('domcontentloaded');
   }
 
@@ -114,95 +148,67 @@ export class AuthUtils {
     password: string,
     afterLoginAction: 'admin' | 'newsletter' | null = null,
   ): Promise<void> {
-    // Navigate to the website
-    await this.page.goto(getFullUrl(URLs.LOGIN));
+    // مخفی‌سازی webdriver (بدون تغییر)
+  await this.page.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => false });
+    (window as any).chrome = { runtime: {} };
+    const originalQuery = (window.navigator as any).permissions.query;
+    (window.navigator as any).permissions.query = (parameters: any) =>
+      parameters.name === 'notifications'
+        ? Promise.resolve({ state: Notification.permission } as PermissionStatus)
+        : originalQuery(parameters);
+  });
 
-    // Locate the login button using role and click it
-    const loginButton = this.page.locator('button:has-text("ورود")');
-    await loginButton.waitFor({ state: 'visible', timeout: 10000 });
-    await loginButton.waitFor({ state: 'attached' });
-    await loginButton.click();
+  // رفتن به صفحه لاگین
+  await this.page.goto(getFullUrl(URLs.LOGIN).trim()); // ✅ اضافه کردن .trim()
+  // کلیک روی دکمه ورود اولیه
+  const loginButton = this.page.locator('button:has-text("ورود")');
+  await loginButton.waitFor({ state: 'visible', timeout: 10000 });
+  await loginButton.click();
 
-    // Locate and click the "ورود با حساب دیگر" button
-    const switchAccountButton = this.page.locator('a#authSelAccBtn');
-    await expect(switchAccountButton).toBeVisible();
-    await switchAccountButton.click();
+  // انتظار برای لود کامل صفحه SSO
+  console.log('⏳ در انتظار لود صفحه SSO...');
+  await this.page.waitForLoadState('networkidle', { timeout: 30000 });
+  await this.page.waitForTimeout(2000);
 
-    // Locate and fill the username and password fields
-    const usernameField = this.page.locator('#authIdentity-inp');
-    const passwordField = this.page.locator('#authPassword-inp');
-    await usernameField.fill(username);
-    await passwordField.fill(password);
+  // ✅ کلید راه‌حل: مستقیماً منتظر فیلد نام کاربری بمان (حذف کامل بخش سوئیچ اکانت)
+  const usernameField = this.page.locator('#authIdentity-inp');
+  await usernameField.waitFor({ state: 'visible', timeout: 5000 });
+  console.log('✅ فرم لاگین آماده است');
 
-    // Click the login button
-    const submitButton = this.page.locator('#authLoginBtn');
-    await this.waitUtils.stableClick(submitButton);
+  // پر کردن فیلدها بدون هیچ تعامل اضافی
+  console.log(`در حال ورود با حساب: ${username}`);
+  await usernameField.fill(username);
+  await this.page.locator('#authPassword-inp').fill(password);
 
-    // صبر برای لود کامل صفحه
-    await this.page.waitForLoadState('domcontentloaded');
-    await this.page.waitForTimeout(2000);
+  // کلیک روی دکمه ورود
+  const submitButton = this.page.locator('#authLoginBtn');
+  await submitButton.waitFor({ state: 'visible', timeout: 10000 });
+  await this.waitUtils.stableClick(submitButton); // استفاده از stableClick برای اطمینان
 
-    // اکشن بعد از لاگین
-    if (afterLoginAction === 'admin') {
-      const adminPanelButton = this.page.locator('button.bg-tertiary').nth(0); // انتخاب سومین دکمه
-      if (
-        await adminPanelButton.isVisible({ timeout: 5000 }).catch(() => false)
-      ) {
-        await adminPanelButton.click();
-        await this.page.waitForLoadState('domcontentloaded');
-      }
-    } else if (afterLoginAction === 'newsletter') {
-      const newsletterButton = this.page.locator('button.bg-tertiary').nth(1); // فرض: دومی خبرنامه است
-      if (
-        await newsletterButton.isVisible({ timeout: 5000 }).catch(() => false)
-      ) {
-        await newsletterButton.click();
-        await this.page.waitForLoadState('domcontentloaded');
-      }
+  // انتظار برای ورود موفق
+  await this.page.waitForLoadState('domcontentloaded');
+  await this.page.waitForTimeout(2000);
+  console.log('✅ ورود با حساب جدید موفقیت‌آمیز بود');
+
+  // اکشن بعد از لاگین (بدون تغییر)
+  if (afterLoginAction === 'admin') {
+    const adminPanelButton = this.page.locator('button.bg-tertiary').first();
+    if (await adminPanelButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await adminPanelButton.click();
+      await this.page.waitForLoadState('domcontentloaded');
     }
+  } else if (afterLoginAction === 'newsletter') {
+    const newsletterButton = this.page.locator('button.bg-tertiary').nth(1);
+    if (await newsletterButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await newsletterButton.click();
+      await this.page.waitForLoadState('domcontentloaded');
+    }
+  }
     // اگر هیچکدام نبود، فقط لاگین انجام می‌شود و وارد داشبورد می‌شود
   }
 
-  //   async logout(): Promise<void> {
-  //     await this.page.waitForTimeout(3000);8
-
-  //     // // Click on profile button
-  //     // const profileButton = this.page.getByRole('button', { name: /.*/ });
-  //     // await profileButton.click();
-  //     const profileBtn = this.page.locator('.userProfile');
-  //     if (await profileBtn.isVisible()) {
-  //       await profileBtn.click();
-  //     }
-
-  //     // // Click the logout button
-  //     // this.page.waitForTimeout(10000); //
-  //     // const logoutButton = this.page.locator(
-  //     //   'button[role="menuitem"]:has-text("خروج از حساب")'
-  //     // );
-  //     // await this.page.locator('text=خروج از حساب').waitFor({ state: 'visible', timeout: 15000 });
-
-  //     // await logoutButton.waitFor({ state: 'visible', timeout: 10000 });
-  //     // await logoutButton.click();
-
-  //     // Ideally trigger the menu containing the logout button
-  //     // const menuTrigger = this.page.locator('selector-for-menu-button');
-  //     // await menuTrigger.click(); // if needed
-
-  //     const logoutButton = this.page.getByRole('menuitem', {
-  //       name: /خروج از حساب/,
-  //     });
-  //     await expect(logoutButton).toBeVisible({ timeout: 10000 });
-  //     await logoutButton.click();
-
-  //     // Optional: confirm redirection or state change
-  //     // await this.page.waitForURL('expected-post-logout-url', { timeout: 15000 }); // Removed placeholder
-
-  //     // Wait for navigation back to the home page
-  //     await this.page.waitForURL(url => url.toString().includes('/login'), {
-  //       timeout: 15000,
-  //     });
-  //  }
-
+  
   async logout(): Promise<void> {
     const profileBtn = this.page.locator('.userProfile');
     if (await profileBtn.isVisible({ timeout: 5000 })) {
@@ -221,16 +227,14 @@ export class AuthUtils {
       return; // Exit logout gracefully
     }
 
-    await this.page.waitForTimeout(1000);
-    console.log(await this.page.content());
-
-    const logoutButton = this.page.locator('button:has-text("خروج از حساب")');
-
-    //await expect(logoutButton).toBeVisible({ timeout: 10000 });
-    //await logoutButton.click();
+    // بعد از کلیک روی خروج، ممکن است صفحه در حال ناوبری باشد،
+    // بنابراین مستقیماً از page.content استفاده نمی‌کنیم تا خطای
+    // "Unable to retrieve content because the page is navigating" رخ ندهد.
+    await this.page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {
+      // اگر به هر دلیلی به این state نرسید، از خطا عبور می‌کنیم
+    });
 
     // لاگ برای بررسی مسیر واقعی
-    await this.page.waitForTimeout(1000);
     const currentUrl = this.page.url();
     console.log('🧭 Current URL after logout:', currentUrl);
 

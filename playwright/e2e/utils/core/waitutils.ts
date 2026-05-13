@@ -21,13 +21,38 @@ export class WaitUtils {
   }
 
   async stableClick(element: Locator): Promise<void> {
-    try {
-      await element.waitFor({ state: 'visible', timeout: 10000 });
-      await element.click({ timeout: 5000 });
-    } catch (error) {
-      console.error('Click failed, retrying...', error);
-      await this.page.waitForTimeout(1000);
-      await element.click({ timeout: 5000 });
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    while (attempts < maxAttempts) {
+      try {
+        await element.waitFor({ state: 'visible', timeout: 15000 });
+        await element.scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(500); // Wait for any animations
+        await element.click({ timeout: 10000 });
+        return; // Success, exit the function
+      } catch (error) {
+        attempts++;
+        console.error(`Click failed (attempt ${attempts}/${maxAttempts}), retrying...`, error);
+        
+        if (attempts >= maxAttempts) {
+          // Last attempt: try force click
+          try {
+            await element.waitFor({ state: 'visible', timeout: 15000 });
+            await element.scrollIntoViewIfNeeded();
+            await element.click({ force: true, timeout: 10000 });
+            return;
+          } catch (forceError) {
+            throw new Error(
+              `Failed to click element after ${maxAttempts} attempts: ${forceError}`,
+            );
+          }
+        }
+        
+        await this.page.waitForTimeout(1500);
+        // Wait for page to stabilize
+        await this.page.waitForLoadState('networkidle').catch(() => {});
+      }
     }
   }
 }

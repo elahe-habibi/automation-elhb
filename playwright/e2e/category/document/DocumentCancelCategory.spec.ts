@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthUtils } from '../../utils/core/auth';
-import { RepositoryUtils } from '../../utils/repository/CreateRepository';
-import { CategoryManager } from '../../utils/category/CreateCategory';
+import { RepositoryUtils } from '../../utils/repository/crudrepo/CreateRepository';
+import { CategoryManager } from '../../utils/category/create/CreateCategory';
 import { DocumentCategory } from '../../utils/document/DocumentCancelCategoty';
 
 test.describe('Repository Create and Share', () => {
