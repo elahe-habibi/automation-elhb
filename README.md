@@ -85,15 +85,13 @@ Modern automation practices suitable for European QA roles
 Continuous learning and hands‑on experience with open‑source tools
 
 
-👩‍💻 Author
-Elahe Habibi
+## 👩‍💻 Author
 
-QA Automation Engineer
+**Elahe Habibi**  
+QA Automation Engineer  
 
-📍 Based in Iran 
+📍 Iran (Open to relocation)
 
-🔗 LinkedIn Profile
-
-🔗 GitHub Profile
-
+- 💼 [LinkedIn](https://linkedin.com/in/elahe-habibi)
+- 💻 [GitHub](https://github.com/elahe-habibi)
 
