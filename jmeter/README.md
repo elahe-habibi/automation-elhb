@@ -1,80 +1,80 @@
+# JMeter Performance Test Suite
 
+This directory contains **Apache JMeter performance test plans** used for evaluating the
+performance, scalability, and stability of backend services under different load conditions.
 
-JMeter Performance Testing Suite
-This directory contains Apache JMeter performance test plans designed to evaluate the stability, scalability, and response time of backend APIs under load.
+The goal of these tests is to simulate real‑world traffic patterns and identify potential
+bottlenecks before production deployment.
 
-The goal of these tests is to simulate realistic user traffic and analyze system behavior under different load conditions.
+---
 
-Overview
-The test plans included in this folder are used to perform load and stress testing on API endpoints.
+## 🚀 Key Features
 
-They simulate multiple concurrent users sending requests to the system and help identify:
+- Load testing with multiple concurrent users  
+- Stress & endurance testing  
+- API performance validation  
+- Response time measurement  
+- Error rate monitoring  
+- Supports CLI execution for CI/CD pipelines  
 
-Performance bottlenecks
-Response time degradation
-System stability under heavy load
-Potential failure points
-Tools & Technologies
-Apache JMeter
-HTTP Request Samplers
-Thread Groups
-Performance Listeners
-Load Testing Scenarios
-Project Structure
-Test Plan.jmx
+---
 
-Main JMeter test plan containing the overall configuration and test structure.
+## 📁 Project Structure
 
-Thread Group.jmx
+| File | Description |
+|------|-------------|
+| **TestPlan.jmx** | Main JMeter test plan containing overall configuration |
+| **Thread Group.jmx** | Defines virtual users, ramp‑up time, and iterations |
+| **3000.jmx** | Heavy load simulation using 3000 virtual users |
+| **trackevent.jmx** | Performance test for specific API endpoints |
+| **initCrash_clean.jmx / initCrash_updated.jmx** | Stability test under repeated requests |
+| **secrets.properties.example** | Sample environment configuration |
 
-Defines the number of virtual users, ramp‑up period, and iteration count for load simulation.
+---
 
-3000.jmx
+## ▶️ How to Run Tests (JMeter GUI)
 
-Load testing scenario designed to simulate a high number of concurrent users.
+1. Open **Apache JMeter**
+2. Go to: **File → Open**
+3. Select any `.jmx` test plan
+4. Click **Start**
+5. Monitor the performance metrics in:
+   - View Results Tree  
+   - Summary Report  
+   - Aggregate Report  
 
-trackevent.jmx
+---
 
-Performance test targeting specific API endpoints.
+## 🖥️ How to Run Tests (CLI – Recommended)
 
-initCrash_clean.jmx / initCrash_updated.jmx
-
-Test scenarios used to validate system stability under repeated requests.
-
-secrets.properties.example
-
-Example configuration file for environment variables or secrets used during test execution.
-
-Running the Tests
-Run a test plan using the JMeter GUI
-Open Apache JMeter
-Select File → Open
-Choose one of the .jmx test plans
-Click Start to execute the test
-Run a test from the command line (recommended for performance testing)
-bash
+### Run test in non‑GUI mode
+```bash
 jmeter -n -t TestPlan.jmx -l results.jtl
-Where:
-
--n runs JMeter in non‑GUI mode
--t specifies the test plan file
--l specifies the result log file
-Performance Reports
-After executing a test, you can generate an HTML performance report:
-
+Parameters
+-n → Run in non‑GUI mode
+-t → Path to the test plan
+-l → Log results to a file
+📊 Generate HTML Performance Report
 bash
 jmeter -g results.jtl -o report
-This report provides insights into:
+This report includes:
 
-Response times
+Response times (avg, min, max)
+Percentiles (90, 95, 99)
 Throughput
-Error rates
-System performance trends
-Best Practices
-Always run performance tests in non‑GUI mode for accurate results.
-Gradually increase the number of users to observe system behavior.
-Monitor server resources (CPU, memory, database connections) during testing.
-👤 Author: Elahe Habibi
+Error rate
+Performance trends
+💡 Best Practices
+Always run performance tests in non‑GUI mode
+Increase users gradually to avoid server overload
+Monitor server metrics:
+CPU
+Memory
+Network I/O
+Database connections
+Use realistic think‑time in Thread Groups
+Use property files for configuring environments
+👤 Author
+Elahe Habibi
 
 QA Automation Engineer
-
