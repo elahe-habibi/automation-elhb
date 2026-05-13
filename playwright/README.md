@@ -1,4 +1,4 @@
-markdown
+
 # 🎭 Category Management Automation Suite
 > Robust End-to-End Testing with Playwright & TypeScript
 
